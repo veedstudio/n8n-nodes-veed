@@ -1,0 +1,52 @@
+{
+	"name": "Veed Fabric - Basic Video Generation",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start-node",
+			"name": "When clicking 'Test workflow'",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [250, 300]
+		},
+		{
+			"parameters": {
+				"resource": "fabric",
+				"operation": "generateVideo",
+				"model": "fal-ai/veed/fabric-1.0",
+				"imageUrl": "https://example.com/portrait.jpg",
+				"audioUrl": "https://example.com/speech.mp3",
+				"resolution": "720p",
+				"aspectRatio": "16:9"
+			},
+			"id": "veed-node",
+			"name": "Veed Fabric",
+			"type": "n8n-nodes-veed.veed",
+			"typeVersion": 1,
+			"position": [450, 300],
+			"credentials": {
+				"falAiApi": {
+					"id": "1",
+					"name": "Fal.ai API"
+				}
+			}
+		}
+	],
+	"connections": {
+		"When clicking 'Test workflow'": {
+			"main": [
+				[
+					{
+						"node": "Veed Fabric",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"pinData": {},
+	"settings": {
+		"executionOrder": "v1"
+	}
+}

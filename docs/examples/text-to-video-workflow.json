@@ -1,0 +1,97 @@
+{
+	"name": "Text to Talking Head Video",
+	"nodes": [
+		{
+			"parameters": {
+				"path": "create-video",
+				"httpMethod": "POST",
+				"responseMode": "responseNode"
+			},
+			"id": "webhook-trigger",
+			"name": "Webhook",
+			"type": "n8n-nodes-base.webhook",
+			"typeVersion": 1,
+			"position": [250, 300]
+		},
+		{
+			"parameters": {
+				"operation": "textToSpeech",
+				"text": "={{ $json.script }}",
+				"voiceId": "={{ $json.voiceId || '21m00Tcm4TlvDq8ikWAM' }}"
+			},
+			"id": "elevenlabs-node",
+			"name": "Generate Speech (ElevenLabs)",
+			"type": "n8n-nodes-base.elevenlabs",
+			"typeVersion": 1,
+			"position": [450, 300]
+		},
+		{
+			"parameters": {
+				"resource": "fabric",
+				"operation": "generateVideo",
+				"model": "fal-ai/veed/fabric-1.0/fast",
+				"imageUrl": "={{ $json.portrait_url }}",
+				"audioUrl": "={{ $json.audio_url }}",
+				"resolution": "480p",
+				"aspectRatio": "9:16"
+			},
+			"id": "veed-node",
+			"name": "Veed Fabric",
+			"type": "n8n-nodes-veed.veed",
+			"typeVersion": 1,
+			"position": [650, 300],
+			"credentials": {
+				"falAiApi": {
+					"id": "1",
+					"name": "Fal.ai API"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"respondWith": "json",
+				"responseBody": "={{ { \"status\": \"success\", \"video_url\": $json.videoUrl, \"request_id\": $json.requestId } }}"
+			},
+			"id": "respond-node",
+			"name": "Return Result",
+			"type": "n8n-nodes-base.respondToWebhook",
+			"typeVersion": 1,
+			"position": [850, 300]
+		}
+	],
+	"connections": {
+		"Webhook": {
+			"main": [
+				[
+					{
+						"node": "Generate Speech (ElevenLabs)",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Generate Speech (ElevenLabs)": {
+			"main": [
+				[
+					{
+						"node": "Veed Fabric",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Veed Fabric": {
+			"main": [
+				[
+					{
+						"node": "Return Result",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	}
+}
