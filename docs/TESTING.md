@@ -34,11 +34,24 @@ This will:
 
 ### 4. Create Test Workflow
 
+**Option A: Import a Dev Workflow Example (Recommended)**
+
+1. In n8n (running at `localhost:5678`), click **Workflows** → **Import from File**
+2. Navigate to `./dev-workflow-examples/` in this repository on your local machine
+3. Select one of the example workflow JSON files:
+   - `simple-text-to-video.json` - Basic test with demo assets
+   - `text-to-video-showcase.json` - Full pipeline (requires OpenAI/Twitter credentials)
+4. The workflow will be imported with pre-configured settings
+5. Skip to step 6 to execute
+
+**Option B: Create a New Workflow from Scratch**
+
 1. Create a new workflow
 2. Add a **Manual Trigger** node (already added by default)
 3. Click the **+** button to add another node
 4. Search for "Veed"
 5. Select the **Veed** node
+6. Continue to step 5 to configure
 
 ### 5. Configure the Veed Node
 
@@ -70,14 +83,14 @@ This will:
 2. Watch the execution:
    - You'll see "Executing..." status
    - Check the logs for progress updates: "Generation progress: 45%"
-   - Wait 5-15 minutes for completion (depending on audio length and resolution)
+   - Wait 1-5 minutes for completion (depending on audio length and resolution)
 3. When complete, you'll see the output data:
    ```json
    {
    	"requestId": "req_...",
    	"status": "completed",
    	"videoUrl": "https://fal-cdn.com/...",
-   	"duration": 300000
+   	"duration": 30000
    }
    ```
 4. Copy the `videoUrl` and open in browser to verify the video
@@ -92,7 +105,6 @@ This will:
 - [ ] Icon displays correctly (purple "V")
 - [ ] Credential type is available
 - [ ] Can add and save fal.ai API credential
-- [ ] Credential test passes with valid key
 - [ ] All parameters display correctly
 - [ ] Default values are set
 - [ ] Hints are visible
@@ -104,8 +116,6 @@ This will:
 - [ ] Progress updates appear in logs (0%, 25%, 50%, 75%, 100%)
 - [ ] Returns valid video URL
 - [ ] Video URL is accessible
-- [ ] Video has correct aspect ratio
-- [ ] Video has audio synced to image
 
 ### Error Handling ✅
 
@@ -129,8 +139,6 @@ This will:
 
 - [ ] Custom polling interval works
 - [ ] Custom timeout works
-- [ ] continueOnFail works for batch
-- [ ] Multiple items in workflow work
 
 ---
 

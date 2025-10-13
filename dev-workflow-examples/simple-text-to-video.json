@@ -1,0 +1,157 @@
+{
+	"name": "Simple Text-to-Video (Veed Showcase - Minimal Setup)",
+	"nodes": [
+		{
+			"parameters": {
+				"content": "=## 🎬 Simple Video Generator Demo\n\n**Instructions:**\n1. Configure your Fal.ai API credentials\n2. Click \"Test Workflow\"\n3. Wait 5-15 minutes for video generation\n4. Get your video URL!\n\n**What it does:**\nGenerates a talking head video from a demo portrait image + audio file.\n\n**To customize:**\nReplace the image & audio URLs in the next node with your own.",
+				"height": 300,
+				"width": 400
+			},
+			"id": "sticky-note-instructions",
+			"name": "Sticky Note",
+			"type": "n8n-nodes-base.stickyNote",
+			"typeVersion": 1,
+			"position": [240, 160]
+		},
+		{
+			"parameters": {
+				"options": {}
+			},
+			"id": "manual-trigger-simple",
+			"name": "▶️ Start Here",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [460, 300]
+		},
+		{
+			"parameters": {
+				"assignments": {
+					"assignments": [
+						{
+							"id": "image",
+							"name": "imageUrl",
+							"value": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=800&fit=crop",
+							"type": "string"
+						},
+						{
+							"id": "audio",
+							"name": "audioUrl",
+							"value": "https://raw.githubusercontent.com/yaph/tts-samples/main/mp3/English/en-AU-NatashaNeural.mp3",
+							"type": "string"
+						}
+					]
+				},
+				"options": {}
+			},
+			"id": "set-demo-assets",
+			"name": "📝 Set Demo Image & Audio",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.3,
+			"position": [680, 300],
+			"notes": "Using demo assets. Replace these URLs with your own to test with custom content."
+		},
+		{
+			"parameters": {
+				"resource": "fabric",
+				"operation": "generateVideo",
+				"model": "veed/fabric-1.0/fast",
+				"imageUrl": "={{ $json.imageUrl }}",
+				"audioUrl": "={{ $json.audioUrl }}",
+				"resolution": "480p",
+				"aspectRatio": "9:16",
+				"options": {
+					"pollingInterval": 3,
+					"timeout": 5
+				}
+			},
+			"id": "veed-simple",
+			"name": "🎬 Veed Fabric: Generate Video",
+			"type": "CUSTOM.veed",
+			"typeVersion": 1,
+			"position": [900, 300],
+			"notes": "THIS IS YOUR CUSTOM NODE!"
+		},
+		{
+			"parameters": {
+				"assignments": {
+					"assignments": [
+						{
+							"id": "result-video",
+							"name": "videoUrl",
+							"value": "={{ $json.videoUrl }}",
+							"type": "string"
+						},
+						{
+							"id": "result-status",
+							"name": "status",
+							"value": "={{ $json.status }}",
+							"type": "string"
+						},
+						{
+							"id": "result-duration",
+							"name": "generationTimeSeconds",
+							"value": "={{ Math.round($json.duration / 1000) }}",
+							"type": "number"
+						},
+						{
+							"id": "success-message",
+							"name": "message",
+							"value": "=✅ Video generated successfully!\n\n📹 Watch: {{ $json.videoUrl }}\n⏱️ Generation time: {{ Math.round($json.duration / 1000) }} seconds\n\nNext steps:\n1. Download the video\n2. Post to social media\n3. Use in your marketing campaigns!",
+							"type": "string"
+						}
+					]
+				},
+				"options": {}
+			},
+			"id": "format-output",
+			"name": "✅ Success! Video Ready",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.3,
+			"position": [1120, 300]
+		}
+	],
+	"connections": {
+		"▶️ Start Here": {
+			"main": [
+				[
+					{
+						"node": "📝 Set Demo Image & Audio",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"📝 Set Demo Image & Audio": {
+			"main": [
+				[
+					{
+						"node": "🎬 Veed Fabric: Generate Video",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"🎬 Veed Fabric: Generate Video": {
+			"main": [
+				[
+					{
+						"node": "✅ Success! Video Ready",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"pinData": {},
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"staticData": null,
+	"tags": [],
+	"triggerCount": 0,
+	"updatedAt": "2025-10-10T00:00:00.000Z",
+	"versionId": "1"
+}

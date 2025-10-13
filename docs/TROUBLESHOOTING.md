@@ -189,7 +189,7 @@ When reporting issues, include:
 ## FAQ
 
 **Q: How long does video generation take?**
-A: Typically 5-15 minutes depending on video length and resolution. 480p is faster than 720p, and the Fast model is quicker than Standard.
+A: Typically depending on audio length and video resolution. 480p is faster than 720p, and the Fast model is quicker than Standard.
 
 **Q: Can I cancel a running generation?**
 A: Currently no - once submitted, the request continues on fal.ai's servers. Future versions may support cancellation.
@@ -201,7 +201,7 @@ A: Determined by your audio file length. Most users generate 5-60 second videos.
 A: fal.ai operates on pay-per-use. You'll be charged based on generation time. Check [fal.ai pricing](https://fal.ai/pricing).
 
 **Q: Can I use my own Veed account?**
-A: This node uses fal.ai's public Fabric model, not Veed's internal API. You need a fal.ai account and API key.
+A: This node uses fal.ai's public Fabric model, not Veed's API. You need a fal.ai account and API key.
 
 **Q: Why is my workflow blocking for so long?**
-A: The node waits for video generation to complete (5-15 min). This is expected behavior. Future versions may support webhook callbacks for non-blocking operation.
+A: The node waits for video generation to complete. This is expected behavior. Future versions may support webhook callbacks for non-blocking operation.

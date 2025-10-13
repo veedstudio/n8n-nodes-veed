@@ -50,6 +50,20 @@ export class Veed implements INodeType {
 				default: 'fabric',
 			},
 
+			// Notice for API key
+			{
+				displayName:
+					"Get your fal.ai API key from <a href='https://fal.ai/dashboard/keys' target='_blank'>fal.ai dashboard</a>",
+				name: 'notice',
+				type: 'notice',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['fabric'],
+					},
+				},
+			},
+
 			// Include fabric operations
 			...fabricOperations,
 

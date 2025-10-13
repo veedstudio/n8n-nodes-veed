@@ -55,17 +55,16 @@ Generate realistic talking head videos from a still image and audio file.
 
 - Speech audio URL for lip sync
 - Supported formats: MP3, WAV, M4A, AAC
-- Duration: Automatically detected from audio file
 
 **Model Version**
 
-- **Fabric 1.0 (Standard)**: Higher quality (recommended for final output)
-- **Fabric 1.0 Fast**: Faster generation (good for testing and iterations)
+- **Fabric 1.0**: Lower price
+- **Fabric 1.0 Fast**: Faster generation, higher price
 
 **Resolution**
 
-- `480p`: Faster generation (~5-8 minutes)
-- `720p`: Higher quality (~10-15 minutes)
+- `480p`: Faster generation
+- `720p`: Higher quality
 
 **Aspect Ratio**
 
@@ -87,68 +86,103 @@ Generate realistic talking head videos from a still image and audio file.
 - Recommended: 10+ minutes for longer videos, 15+ for 720p
 - Range: 1-60 minutes
 
-### Example: Basic Video Generation
+## 🎬 Showcase Workflows
 
-```json
-{
-	"nodes": [
-		{
-			"type": "n8n-nodes-veed.veed",
-			"name": "Generate Video",
-			"parameters": {
-				"resource": "fabric",
-				"operation": "generateVideo",
-				"model": "fal-ai/veed/fabric-1.0",
-				"imageUrl": "https://example.com/portrait.jpg",
-				"audioUrl": "https://example.com/speech.mp3",
-				"resolution": "720p",
-				"aspectRatio": "16:9"
-			},
-			"credentials": {
-				"falAiApi": "your-credential-name"
-			}
-		}
-	]
-}
+> **Note:** These workflow examples are available in the repository for local development/testing only. They are not included in the published npm package.
+
+Ready-to-use workflow templates demonstrating the Veed Fabric node in complete pipelines:
+
+### 1. **Simple Text-to-Video** (Beginner-Friendly)
+
+A minimal workflow to test the Veed Fabric node with pre-made assets.
+
+**What it does:**
+
+- Uses demo image and audio URLs
+- Generates a talking head video using Fabric Fast model
+- Shows generation progress and results
+- Formats output with video URL and generation time
+
+**Import:** `dev-workflow-examples/simple-text-to-video.json`
+
+---
+
+### 2. **Complete Text-to-Video Ad Generator** (Advanced)
+
+Full automated pipeline from text prompt to social media post.
+
+**What it does:**
+
+```
+Text Prompt ("animated bear advertising sunglasses")
+    ↓
+🤖 OpenAI GPT-4o-mini → Generates ad script + character description
+    ↓
+🎨 OpenAI DALL-E 3 → Creates character image
+    ↓
+🎙️ StreamElements TTS → Converts script to voice (FREE)
+    ↓
+🎬 Veed Fabric → Generates talking head video
+    ↓
+🐦 Twitter/X → Posts video with caption
 ```
 
-### Example: Batch Processing
+**Import:** `dev-workflow-examples/text-to-video-showcase.json`
 
-Use with CSV or database inputs to generate multiple videos:
+**Services used:**
 
-1. Read data source (CSV, Airtable, Google Sheets)
-2. Connect to Veed node
-3. Use expressions: `={{ $json['image_url'] }}` and `={{ $json['audio_url'] }}`
-4. Process results and save
+- 💰 **OpenAI GPT-4o-mini** ($5 free trial, ~$0.01/video) - Script generation
+- 💰 **OpenAI DALL-E 3** ($5 free trial, ~$0.04/image) - Image generation
+- ✅ **StreamElements TTS** (FREE, no API key needed) - Text-to-speech
+- 💰 **fal.ai** (Pay-per-use, ~$0.08-0.20/second) - Video generation
+- ✅ **Twitter/X API** (FREE tier) - Social posting
+
+---
+
+### 💡 Quick Start with Showcase Workflows
+
+> **Prerequisites:** These workflows are only available when running the node in development mode. See [Development](#development) section below for setup instructions.
+
+1. **Import a workflow:**
+
+   ```
+   n8n (localhost:5678) → Workflows → Import from File → Select JSON from dev-workflow-examples/
+   ```
+
+2. **Set up credentials:**
+   - **Simple workflow:** Only fal.ai API key required
+   - **Advanced workflow:** OpenAI API key, Twitter OAuth2 credentials, fal.ai API key
+
+3. **Customize:**
+   - **Simple:** Replace imageUrl and audioUrl in "📝 Set Demo Image & Audio" node
+   - **Advanced:** Change adPrompt in "📝 Set Ad Concept" node
+   - Adjust video settings (resolution, aspect ratio)
+
+4. **Execute and wait:**
+   - Click "Test Workflow" button
+   - Watch progress in execution logs
+
+5. **Use your video:**
+   - Get video URL from output
+   - Download and use in your content
+   - Automatically posted to Twitter (advanced workflow)
 
 ## Performance
 
-- **Generation time**: 5-15 minutes depending on video length and resolution
+- **Generation time**: Depending on audio length and video resolution
 - **Progress updates**: Real-time progress shown in execution logs
 - **Timeout handling**: Configurable timeout with clear error messages
-- **Batch support**: Use "Continue on Fail" for batch operations
 
 ## Troubleshooting
 
-### Authentication Failed
+Having issues? See the [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for detailed solutions to common problems:
 
-- Verify your API key is correct (copy-paste from fal.ai dashboard)
-- Check that the API key hasn't expired
-- Try generating a new API key
-
-### Generation Timeout
-
-- Increase timeout in Options (default: 10 minutes)
-- Use 480p resolution for faster generation
-- Try the "Fast" model variant
-- Check [fal.ai status](https://status.fal.ai) for service issues
-
-### Invalid URL Errors
-
-- Ensure URLs are publicly accessible (not behind authentication)
-- Verify file extensions (.jpg, .png, .webp for images; .mp3, .wav, etc. for audio)
-- Test URLs in your browser
-- Use HTTPS URLs (not HTTP)
+- Authentication errors
+- Generation timeouts
+- Invalid URL errors
+- Rate limits
+- Network issues
+- And more...
 
 ## Compatibility
 
@@ -177,7 +211,6 @@ pnpm build
 ```bash
 pnpm test          # Run all tests
 pnpm test:watch    # Watch mode
-pnpm test:ui       # Vitest UI
 pnpm test:coverage # Coverage report
 ```
 
@@ -186,6 +219,8 @@ pnpm test:coverage # Coverage report
 ```bash
 pnpm dev  # Starts n8n with your node at localhost:5678
 ```
+
+For detailed testing instructions, see [docs/TESTING.md](docs/TESTING.md)
 
 ## Contributing
 

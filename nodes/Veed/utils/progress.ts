@@ -1,7 +1,9 @@
+import type { FalLogEntry } from './api';
+
 /**
  * Progress extraction utility for fal.ai logs
  */
-export function extractProgress(logs: Array<{ message?: string }>): number | null {
+export function extractProgress(logs: FalLogEntry[]): number | null {
 	if (!logs || !logs.length) {
 		return null;
 	}

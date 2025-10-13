@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { IExecuteFunctions } from 'n8n-workflow';
-import { submitFabricRequest, pollForCompletion } from '../nodes/Veed/utils/api';
+import { submitFabricRequest, pollForCompletion, fetchVideoResult } from '../nodes/Veed/utils/api';
 
 /**
  * Integration tests for Veed Fabric API integration
@@ -24,15 +24,20 @@ describe('Fabric API Integration (Mocked)', () => {
 	});
 
 	describe('submitFabricRequest', () => {
-		it('should submit request successfully and return request_id', async () => {
+		it('should submit request successfully and return full result', async () => {
 			// Mock successful submit response
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({ request_id: 'test_req_123' }),
+				json: async () => ({
+					request_id: 'test_req_123',
+					status_url: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123/status',
+					response_url: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+					queue_position: 0,
+				}),
 			});
 
-			const requestId = await submitFabricRequest.call(mockThis, {
-				model: 'fal-ai/veed/fabric-1.0',
+			const result = await submitFabricRequest.call(mockThis, {
+				model: 'veed/fabric-1.0',
 				imageUrl: 'https://example.com/portrait.jpg',
 				audioUrl: 'https://example.com/speech.mp3',
 				resolution: '480p',
@@ -40,9 +45,15 @@ describe('Fabric API Integration (Mocked)', () => {
 				apiKey: 'test_key',
 			});
 
-			expect(requestId).toBe('test_req_123');
+			expect(result.request_id).toBe('test_req_123');
+			expect(result.status_url).toBe(
+				'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123/status',
+			);
+			expect(result.response_url).toBe(
+				'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+			);
 			expect(global.fetch).toHaveBeenCalledWith(
-				'https://fal.run/fal-ai/veed/fabric-1.0',
+				'https://queue.fal.run/veed/fabric-1.0',
 				expect.objectContaining({
 					method: 'POST',
 					headers: expect.objectContaining({
@@ -55,11 +66,16 @@ describe('Fabric API Integration (Mocked)', () => {
 		it('should send correct request body parameters', async () => {
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({ request_id: 'test_req_123' }),
+				json: async () => ({
+					request_id: 'test_req_123',
+					status_url: 'https://queue.fal.run/veed/fabric-1.0/fast/requests/test_req_123/status',
+					response_url: 'https://queue.fal.run/veed/fabric-1.0/fast/requests/test_req_123',
+					queue_position: 0,
+				}),
 			});
 
 			await submitFabricRequest.call(mockThis, {
-				model: 'fal-ai/veed/fabric-1.0/fast',
+				model: 'veed/fabric-1.0/fast',
 				imageUrl: 'https://example.com/portrait.jpg',
 				audioUrl: 'https://example.com/speech.mp3',
 				resolution: '720p',
@@ -87,7 +103,7 @@ describe('Fabric API Integration (Mocked)', () => {
 
 			await expect(
 				submitFabricRequest.call(mockThis, {
-					model: 'fal-ai/veed/fabric-1.0',
+					model: 'veed/fabric-1.0',
 					imageUrl: 'https://example.com/portrait.jpg',
 					audioUrl: 'https://example.com/speech.mp3',
 					resolution: '480p',
@@ -121,27 +137,20 @@ describe('Fabric API Integration (Mocked)', () => {
 					ok: true,
 					json: async () => ({
 						status: 'COMPLETED',
-						data: {
-							video: {
-								url: 'https://fal-cdn.com/result.mp4',
-							},
-						},
+						response_url: 'https://queue.fal.run/test/requests/test_req_123',
 						logs: [{ message: 'Diffusing: 100%' }],
 					}),
 				});
 
 			const result = await pollForCompletion.call(mockThis, {
-				requestId: 'test_req_123',
-				model: 'fal-ai/veed/fabric-1.0',
+				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
 				pollingInterval: 100,
 				timeout: 10000,
 			});
 
-			expect(result.status).toBe('completed');
-			expect(result.videoUrl).toBe('https://fal-cdn.com/result.mp4');
-			expect(result.requestId).toBe('test_req_123');
-			expect(result.duration).toBeGreaterThan(0);
+			expect(result.status).toBe('COMPLETED');
+			expect(result.response_url).toBe('https://queue.fal.run/test/requests/test_req_123');
 
 			// Should have polled 3 times
 			expect(global.fetch).toHaveBeenCalledTimes(3);
@@ -158,13 +167,31 @@ describe('Fabric API Integration (Mocked)', () => {
 
 			await expect(
 				pollForCompletion.call(mockThis, {
-					requestId: 'test_req_123',
-					model: 'fal-ai/veed/fabric-1.0',
+					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
 					pollingInterval: 100,
 					timeout: 10000,
 				}),
 			).rejects.toThrow('Video generation failed');
+		});
+
+		it('should throw error with "Unknown error" when generation fails without logs', async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({
+					status: 'FAILED',
+					logs: [],
+				}),
+			});
+
+			await expect(
+				pollForCompletion.call(mockThis, {
+					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
+					apiKey: 'test_key',
+					pollingInterval: 100,
+					timeout: 10000,
+				}),
+			).rejects.toThrow('Video generation failed: Unknown error');
 		});
 
 		it('should throw error when timeout is exceeded', async () => {
@@ -179,8 +206,7 @@ describe('Fabric API Integration (Mocked)', () => {
 
 			await expect(
 				pollForCompletion.call(mockThis, {
-					requestId: 'test_req_123',
-					model: 'fal-ai/veed/fabric-1.0',
+					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
 					pollingInterval: 100,
 					timeout: 500,
@@ -188,25 +214,28 @@ describe('Fabric API Integration (Mocked)', () => {
 			).rejects.toThrow('timed out');
 		});
 
-		it('should handle missing video URL in completed response', async () => {
+		it('should return complete status result when completed', async () => {
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: true,
 				json: async () => ({
 					status: 'COMPLETED',
-					data: {}, // No video object
+					response_url: 'https://queue.fal.run/test/requests/test_req_123',
 					logs: [],
 				}),
 			});
 
-			await expect(
-				pollForCompletion.call(mockThis, {
-					requestId: 'test_req_123',
-					model: 'fal-ai/veed/fabric-1.0',
-					apiKey: 'test_key',
-					pollingInterval: 100,
-					timeout: 10000,
-				}),
-			).rejects.toThrow('no video URL was returned');
+			const result = await pollForCompletion.call(mockThis, {
+				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
+				apiKey: 'test_key',
+				pollingInterval: 100,
+				timeout: 10000,
+			});
+
+			expect(result).toEqual({
+				status: 'COMPLETED',
+				response_url: 'https://queue.fal.run/test/requests/test_req_123',
+				logs: [],
+			});
 		});
 
 		it('should extract and log progress during polling', async () => {
@@ -235,8 +264,7 @@ describe('Fabric API Integration (Mocked)', () => {
 				});
 
 			await pollForCompletion.call(mockThis, {
-				requestId: 'test_req_123',
-				model: 'fal-ai/veed/fabric-1.0',
+				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
 				pollingInterval: 100,
 				timeout: 10000,
@@ -256,19 +284,19 @@ describe('Fabric API Integration (Mocked)', () => {
 					ok: true,
 					json: async () => ({
 						status: 'COMPLETED',
-						data: { video: { url: 'https://fal-cdn.com/result.mp4' } },
+						response_url: 'https://queue.fal.run/test/requests/test_req_123',
 					}),
 				});
 
 			const result = await pollForCompletion.call(mockThis, {
-				requestId: 'test_req_123',
-				model: 'fal-ai/veed/fabric-1.0',
+				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
 				pollingInterval: 100,
 				timeout: 10000,
 			});
 
-			expect(result.videoUrl).toBe('https://fal-cdn.com/result.mp4');
+			expect(result.status).toBe('COMPLETED');
+			expect(result.response_url).toBe('https://queue.fal.run/test/requests/test_req_123');
 			expect(global.fetch).toHaveBeenCalledTimes(2); // Failed once, succeeded once
 		});
 
@@ -278,8 +306,7 @@ describe('Fabric API Integration (Mocked)', () => {
 
 			await expect(
 				pollForCompletion.call(mockThis, {
-					requestId: 'test_req_123',
-					model: 'fal-ai/veed/fabric-1.0',
+					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
 					pollingInterval: 100,
 					timeout: 10000,
@@ -295,13 +322,112 @@ describe('Fabric API Integration (Mocked)', () => {
 
 			await expect(
 				pollForCompletion.call(mockThis, {
-					requestId: 'test_req_123',
-					model: 'fal-ai/veed/fabric-1.0',
+					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
 					pollingInterval: 100,
 					timeout: 10000,
 				}),
 			).rejects.toThrow('Status check failed: Internal Server Error');
+		});
+	});
+
+	describe('fetchVideoResult', () => {
+		it('should successfully fetch video result with valid URL', async () => {
+			const mockVideoResult = {
+				video: {
+					url: 'https://fal-cdn.com/result-video.mp4',
+					content_type: 'video/mp4',
+					file_name: 'result-video.mp4',
+					file_size: 1024000,
+					width: 1920,
+					height: 1080,
+				},
+			};
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => mockVideoResult,
+			});
+
+			const result = await fetchVideoResult.call(mockThis, {
+				responseUrl: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+				apiKey: 'test_key',
+			});
+
+			expect(result).toEqual(mockVideoResult);
+			expect(result.video.url).toBe('https://fal-cdn.com/result-video.mp4');
+			expect(global.fetch).toHaveBeenCalledWith(
+				'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+				expect.objectContaining({
+					headers: {
+						Authorization: 'Key test_key',
+					},
+				}),
+			);
+		});
+
+		it('should throw error when fetch fails with non-ok status', async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: false,
+				statusText: 'Not Found',
+			});
+
+			await expect(
+				fetchVideoResult.call(mockThis, {
+					responseUrl: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+					apiKey: 'test_key',
+				}),
+			).rejects.toThrow('Failed to fetch video result: Not Found');
+		});
+
+		it('should throw error when video URL is missing from response', async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({
+					video: {},
+				}),
+			});
+
+			await expect(
+				fetchVideoResult.call(mockThis, {
+					responseUrl: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+					apiKey: 'test_key',
+				}),
+			).rejects.toThrow('Video result returned but no video URL found');
+		});
+
+		it('should throw error when video object is missing from response', async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({
+					status: 'COMPLETED',
+				}),
+			});
+
+			await expect(
+				fetchVideoResult.call(mockThis, {
+					responseUrl: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+					apiKey: 'test_key',
+				}),
+			).rejects.toThrow('Video result returned but no video URL found');
+		});
+
+		it('should log info message when fetching video result', async () => {
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({
+					video: {
+						url: 'https://fal-cdn.com/result-video.mp4',
+					},
+				}),
+			});
+
+			await fetchVideoResult.call(mockThis, {
+				responseUrl: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
+				apiKey: 'test_key',
+			});
+
+			expect(mockThis.logger.info).toHaveBeenCalledWith('Fetching video result...');
 		});
 	});
 });

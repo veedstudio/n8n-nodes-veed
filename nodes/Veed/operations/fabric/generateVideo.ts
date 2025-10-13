@@ -1,6 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
-import { validateImageUrl, validateAudioUrl } from '../../utils/validators';
-import { submitFabricRequest, pollForCompletion } from '../../utils/api';
+import { validateUrl } from '../../utils/validators';
+import { submitFabricRequest, pollForCompletion, fetchVideoResult } from '../../utils/api';
 
 /**
  * Generate a talking head video using Fabric model
@@ -25,15 +25,15 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 			};
 
 			// Validate inputs
-			validateImageUrl(imageUrl);
-			validateAudioUrl(audioUrl);
+			validateUrl(imageUrl, 'Image URL');
+			validateUrl(audioUrl, 'Audio URL');
 
 			// Convert user-friendly units to milliseconds
 			const pollingIntervalMs = (options.pollingInterval || 5) * 1000; // seconds to ms
 			const timeoutMs = (options.timeout || 10) * 60 * 1000; // minutes to ms
+			const startTime = Date.now();
 
-			// Submit generation request
-			const requestId = await submitFabricRequest.call(this, {
+			const submitResult = await submitFabricRequest.call(this, {
 				model,
 				imageUrl,
 				audioUrl,
@@ -42,16 +42,34 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 				apiKey,
 			});
 
-			this.logger.info(`Fabric generation request submitted: ${requestId}`);
+			this.logger.info(
+				`Fabric generation request submitted: ${submitResult.request_id} (Queue position: ${submitResult.queue_position})`,
+			);
 
-			// Poll for completion
-			const result = await pollForCompletion.call(this, {
-				requestId,
-				model,
+			const statusResult = await pollForCompletion.call(this, {
+				statusUrl: submitResult.status_url,
 				apiKey,
 				pollingInterval: pollingIntervalMs,
 				timeout: timeoutMs,
 			});
+
+			if (!submitResult.response_url || !statusResult.response_url) {
+				throw new Error('Response URL not available');
+			}
+
+			const videoResult = await fetchVideoResult.call(this, {
+				responseUrl: submitResult.response_url || statusResult.response_url,
+				apiKey,
+			});
+
+			const duration = Date.now() - startTime;
+
+			const result = {
+				video: videoResult.video,
+				requestId: submitResult.request_id,
+				status: statusResult.status,
+				duration,
+			};
 
 			returnData.push({
 				json: result,

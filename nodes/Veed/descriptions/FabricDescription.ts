@@ -24,20 +24,6 @@ export const fabricOperations: INodeProperties[] = [
 ];
 
 export const fabricFields: INodeProperties[] = [
-	// Notice for API key
-	{
-		displayName:
-			"Get your fal.ai API key from <a href='https://fal.ai/dashboard/keys' target='_blank'>fal.ai dashboard</a>",
-		name: 'notice',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['fabric'],
-			},
-		},
-	},
-
 	// Model selection
 	{
 		displayName: 'Model Version',

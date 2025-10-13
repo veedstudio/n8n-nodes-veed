@@ -1,0 +1,307 @@
+{
+	"name": "Text to Video Ad Generator (Full Pipeline)",
+	"nodes": [
+		{
+			"parameters": {
+				"content": "=## 🎬 Complete Text-to-Video Pipeline\n\n**What you need:**\n• OpenAI API key ($5 free trial covers ~10-50 videos)\n• Twitter API credentials (free tier)\n• Fal.ai API key (pay-per-use)\n\n**Flow:**\nPrompt → AI Script → AI Image → TTS Audio → Veed Video → Twitter Post\n\n**Cost per video:**\n• OpenAI GPT-4: ~$0.01\n• OpenAI DALL-E 3: ~$0.04\n• OpenAI TTS: ~$0.015\n• Fal.ai Fabric: ~$0.50-1.50\n**Total: ~$0.60-2/video**",
+				"height": 400,
+				"width": 500
+			},
+			"id": "sticky-instructions",
+			"name": "Sticky Note",
+			"type": "n8n-nodes-base.stickyNote",
+			"typeVersion": 1,
+			"position": [240, 180]
+		},
+		{
+			"parameters": {
+				"options": {}
+			},
+			"id": "manual-trigger",
+			"name": "▶️ Start Here",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [460, 400]
+		},
+		{
+			"parameters": {
+				"assignments": {
+					"assignments": [
+						{
+							"id": "prompt",
+							"name": "adPrompt",
+							"value": "Animated bear character advertising stylish sunglasses",
+							"type": "string"
+						},
+						{
+							"id": "aspect",
+							"name": "aspectRatio",
+							"value": "9:16",
+							"type": "string"
+						},
+						{
+							"id": "res",
+							"name": "resolution",
+							"value": "480p",
+							"type": "string"
+						}
+					]
+				},
+				"options": {}
+			},
+			"id": "set-config",
+			"name": "📝 Set Ad Concept",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.3,
+			"position": [680, 400],
+			"notes": "EDIT THIS: Change the ad prompt to generate different videos"
+		},
+		{
+			"parameters": {
+				"url": "https://api.openai.com/v1/chat/completions",
+				"method": "POST",
+				"authentication": "predefinedCredentialType",
+				"nodeCredentialType": "openAiApi",
+				"sendBody": true,
+				"specifyBody": "json",
+				"jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert advertising copywriter. Respond ONLY with valid JSON. No markdown, no code blocks, just raw JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a short ad script and character description for: {{ $json.adPrompt }}\\n\\nRespond with this exact JSON format:\\n{\\n  \\\"script\\\": \\\"15-20 second voice-over (max 30 words)\\\",\\n  \\\"characterDescription\\\": \\\"detailed visual description for DALL-E\\\",\\n  \\\"productFocus\\\": \\\"main product\\\"\\n}\"\n    }\n  ],\n  \"temperature\": 0.8,\n  \"max_tokens\": 500\n}",
+				"options": {}
+			},
+			"id": "openai-script",
+			"name": "🤖 OpenAI: Generate Script",
+			"type": "n8n-nodes-base.httpRequest",
+			"typeVersion": 4.2,
+			"position": [900, 400],
+			"notes": "Generates ad script + character description using GPT-4o-mini"
+		},
+		{
+			"parameters": {
+				"mode": "runOnceForEachItem",
+				"jsCode": "const content = $input.item.json.choices[0].message.content;\nconst parsed = JSON.parse(content);\n\nreturn {\n  script: parsed.script,\n  characterDescription: parsed.characterDescription,\n  productFocus: parsed.productFocus\n};"
+			},
+			"id": "parse-json",
+			"name": "📋 Parse JSON Response",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [1120, 400],
+			"notes": "Extracts script, character description, and product from OpenAI response"
+		},
+		{
+			"parameters": {
+				"url": "https://api.openai.com/v1/images/generations",
+				"method": "POST",
+				"authentication": "predefinedCredentialType",
+				"nodeCredentialType": "openAiApi",
+				"sendBody": true,
+				"specifyBody": "json",
+				"jsonBody": "={\n  \"model\": \"dall-e-3\",\n  \"prompt\": \"{{ $json.characterDescription }}, professional portrait photo, high quality, well-lit, front-facing, clear facial features, marketing photography style, photorealistic\",\n  \"size\": \"1024x1024\",\n  \"quality\": \"standard\",\n  \"n\": 1\n}",
+				"options": {}
+			},
+			"id": "generate-image",
+			"name": "🎨 OpenAI DALL-E: Generate Image",
+			"type": "n8n-nodes-base.httpRequest",
+			"typeVersion": 4.2,
+			"position": [1340, 280],
+			"notes": "Uses DALL-E 3 to generate character image (~$0.04 per image)"
+		},
+		{
+			"parameters": {
+				"jsCode": "const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=${encodeURIComponent($input.item.json.script)}`;\n\nreturn {\n  audioUrl: audioUrl\n};"
+			},
+			"id": "generate-audio",
+			"name": "🎙️ Build TTS Audio URL",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [1340, 520],
+			"notes": "StreamElements TTS - direct URL (100% free, no API key needed)"
+		},
+		{
+			"parameters": {
+				"assignments": {
+					"assignments": [
+						{
+							"id": "img-url",
+							"name": "imageUrl",
+							"value": "={{ $json.data[0].url }}",
+							"type": "string"
+						}
+					]
+				},
+				"options": {}
+			},
+			"id": "extract-image-url-dalle",
+			"name": "🔗 Extract DALL-E Image URL",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.3,
+			"position": [1560, 280],
+			"notes": "Extracts image URL from DALL-E response"
+		},
+		{
+			"parameters": {
+				"mode": "combine",
+				"combinationMode": "mergeByPosition",
+				"options": {}
+			},
+			"id": "merge-urls",
+			"name": "🔄 Merge URLs + Data",
+			"type": "n8n-nodes-base.merge",
+			"typeVersion": 2.1,
+			"position": [1780, 400],
+			"notes": "Combines image URL and audio URL"
+		},
+		{
+			"parameters": {
+				"resource": "fabric",
+				"operation": "generateVideo",
+				"model": "veed/fabric-1.0/fast",
+				"imageUrl": "={{ $json.imageUrl }}",
+				"audioUrl": "={{ $json.audioUrl }}",
+				"resolution": "={{ $('📝 Set Ad Concept').item.json.resolution }}",
+				"aspectRatio": "={{ $('📝 Set Ad Concept').item.json.aspectRatio }}",
+				"options": {
+					"pollingInterval": 5,
+					"timeout": 15
+				}
+			},
+			"id": "veed-generate",
+			"name": "🎬 Veed: Generate Talking Video",
+			"type": "CUSTOM.veed",
+			"typeVersion": 1,
+			"position": [2220, 400],
+			"notes": "Generates talking head video from image + audio"
+		},
+		{
+			"parameters": {
+				"url": "https://api.twitter.com/2/tweets",
+				"method": "POST",
+				"authentication": "predefinedCredentialType",
+				"nodeCredentialType": "twitterOAuth2Api",
+				"sendBody": true,
+				"specifyBody": "json",
+				"jsonBody": "={\n  \"text\": \"🎬 {{ $('📋 Parse JSON Response').item.json.script }}\\n\\n✨ AI-Generated Video Ad\\n\\n{{ $json.video.url }}\"\n}",
+				"options": {}
+			},
+			"id": "twitter-post",
+			"name": "🐦 Post to Twitter/X",
+			"type": "n8n-nodes-base.httpRequest",
+			"typeVersion": 4.2,
+			"position": [2440, 400],
+			"notes": "Posts video link to Twitter using HTTP Request (works with free tier)"
+		}
+	],
+	"connections": {
+		"▶️ Start Here": {
+			"main": [
+				[
+					{
+						"node": "📝 Set Ad Concept",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"📝 Set Ad Concept": {
+			"main": [
+				[
+					{
+						"node": "🤖 OpenAI: Generate Script",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"🤖 OpenAI: Generate Script": {
+			"main": [
+				[
+					{
+						"node": "📋 Parse JSON Response",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"📋 Parse JSON Response": {
+			"main": [
+				[
+					{
+						"node": "🎨 OpenAI DALL-E: Generate Image",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "🎙️ Build TTS Audio URL",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"🎨 OpenAI DALL-E: Generate Image": {
+			"main": [
+				[
+					{
+						"node": "🔗 Extract DALL-E Image URL",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"🎙️ Build TTS Audio URL": {
+			"main": [
+				[
+					{
+						"node": "🔄 Merge URLs + Data",
+						"type": "main",
+						"index": 1
+					}
+				]
+			]
+		},
+		"🔗 Extract DALL-E Image URL": {
+			"main": [
+				[
+					{
+						"node": "🔄 Merge URLs + Data",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"🔄 Merge URLs + Data": {
+			"main": [
+				[
+					{
+						"node": "🎬 Veed: Generate Talking Video",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"🎬 Veed: Generate Talking Video": {
+			"main": [
+				[
+					{
+						"node": "🐦 Post to Twitter/X",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"pinData": {},
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"staticData": null,
+	"tags": [],
+	"triggerCount": 0,
+	"updatedAt": "2025-10-10T00:00:00.000Z",
+	"versionId": "1"
+}
