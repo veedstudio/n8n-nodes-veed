@@ -35,7 +35,7 @@ npm install n8n-nodes-veed
 
 1. In n8n, create a new **Fal.ai API** credential
 2. Paste your personal API key
-3. Add the **Veed** node to your workflow
+3. Add the **VEED AI Video API** node to your workflow
 
 ## Usage
 

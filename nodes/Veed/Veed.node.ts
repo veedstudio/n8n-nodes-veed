@@ -10,7 +10,7 @@ import { fabric } from './operations';
 
 export class Veed implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Veed',
+		displayName: 'VEED AI Video API',
 		name: 'veed',
 		icon: 'file:veed.svg',
 		group: ['transform'],
@@ -18,7 +18,7 @@ export class Veed implements INodeType {
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with Veed AI services',
 		defaults: {
-			name: 'Veed',
+			name: 'VEED AI Video API',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
