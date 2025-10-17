@@ -9,8 +9,9 @@ const FAL_QUEUE_BASE_URL = 'https://queue.fal.run';
 
 /**
  * Sleep utility for polling delays
+ * as per Airtop official example
  */
-// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals as per Airtop official example
+// eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
