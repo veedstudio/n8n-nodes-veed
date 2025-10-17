@@ -1,5 +1,6 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
+import delay from 'lodash.delay';
 import { extractProgress } from './progress';
 
 /**
@@ -8,11 +9,9 @@ import { extractProgress } from './progress';
 const FAL_QUEUE_BASE_URL = 'https://queue.fal.run';
 
 /**
- * Sleep utility for polling delays
- * as per Airtop official example
+ * Sleep utility for polling delays using lodash.delay
  */
-// eslint-disable-next-line
-const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => delay(resolve, ms));
 
 /**
  * fal.ai request status types

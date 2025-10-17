@@ -11,6 +11,9 @@ importers:
 
   .:
     dependencies:
+      lodash.delay:
+        specifier: ^4.1.1
+        version: 4.1.1
       n8n-workflow:
         specifier: '*'
         version: 1.112.0
@@ -18,6 +21,9 @@ importers:
       '@n8n/node-cli':
         specifier: '*'
         version: 0.11.0(@typescript-eslint/utils@8.46.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
+      '@types/lodash.delay':
+        specifier: ^4.1.9
+        version: 4.1.9
       '@types/node':
         specifier: ^24.7.0
         version: 24.7.0
@@ -706,6 +712,12 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  '@types/lodash.delay@4.1.9':
+    resolution: {integrity: sha512-wDyuZgPYnn6NAMA1ooAfJLzRboiDQKUIb9omz/CJz4x0nlUuRsOOLHgLmh+IIvZgB+eb6Ao3+fHA/BJ3WJMmDQ==}
+
+  '@types/lodash@4.17.20':
+    resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
 
   '@types/node@24.7.0':
     resolution: {integrity: sha512-IbKooQVqUBrlzWTi79E8Fw78l8k1RNtlDDNWsFZs7XonuQSJ8oNYfEeclhprUldXISRMLzBpILuKgPlIxm+/Yw==}
@@ -1818,6 +1830,9 @@ packages:
 
   lodash.capitalize@4.2.1:
     resolution: {integrity: sha512-kZzYOKspf8XVX5AvmQF94gQW0lejFVgb80G85bU4ZWzoJ6C03PQg3coYAUpSTpQWelrZELd3XWgHzw4Ck5kaIw==}
+
+  lodash.delay@4.1.1:
+    resolution: {integrity: sha512-HDMACn/aGuz6PNBbzf2V9FKL/Rb2Vv+hSEvicdZA4JAT5o5m0rbQn4Xw62VdTzG2HRu74PInzku98fz8GQlNJg==}
 
   lodash.escaperegexp@4.1.2:
     resolution: {integrity: sha512-TM9YBvyC84ZxE3rgfefxUWiQKLilstD6k7PTGt6wfbtXF8ixIJLOL3VYyV/z+ZiPLsVxAsKAFVwWlWeb2Y8Yyw==}
@@ -3223,6 +3238,12 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
+  '@types/lodash.delay@4.1.9':
+    dependencies:
+      '@types/lodash': 4.17.20
+
+  '@types/lodash@4.17.20': {}
+
   '@types/node@24.7.0':
     dependencies:
       undici-types: 7.14.0
@@ -4418,6 +4439,8 @@ snapshots:
       p-locate: 5.0.0
 
   lodash.capitalize@4.2.1: {}
+
+  lodash.delay@4.1.1: {}
 
   lodash.escaperegexp@4.1.2: {}
 
