@@ -8,6 +8,13 @@ import { extractProgress } from './progress';
 const FAL_QUEUE_BASE_URL = 'https://queue.fal.run';
 
 /**
+ * Sleep utility for polling delays
+ * as per Airtop official example
+ */
+// eslint-disable-next-line
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
  * fal.ai request status types
  */
 type FalStatus = 'IN_QUEUE' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
@@ -179,12 +186,12 @@ export async function pollForCompletion(
 					);
 				}
 				// Exponential backoff
-				await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+				await sleep(1000 * attempt);
 			}
 		}
 
 		// Wait before next poll
-		await new Promise((resolve) => setTimeout(resolve, pollingInterval));
+		await sleep(pollingInterval);
 	}
 
 	throw new NodeOperationError(
