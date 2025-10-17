@@ -78,7 +78,7 @@
 						{
 							"id": "result-video",
 							"name": "videoUrl",
-							"value": "={{ $json.videoUrl }}",
+							"value": "={{ $json.video.url }}",
 							"type": "string"
 						},
 						{
