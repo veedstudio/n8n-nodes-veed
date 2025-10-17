@@ -15,6 +15,7 @@ export class Veed implements INodeType {
 		icon: 'file:veed.svg',
 		group: ['transform'],
 		version: 1,
+		usableAsTool: true,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with Veed AI services',
 		defaults: {

@@ -1,4 +1,9 @@
-import type { IAuthenticateGeneric, ICredentialType, INodeProperties } from 'n8n-workflow';
+import type {
+	IAuthenticateGeneric,
+	ICredentialTestRequest,
+	ICredentialType,
+	INodeProperties,
+} from 'n8n-workflow';
 
 export class FalAiApi implements ICredentialType {
 	name = 'falAiApi';
@@ -6,6 +11,8 @@ export class FalAiApi implements ICredentialType {
 	displayName = 'Fal.ai API';
 
 	documentationUrl = 'https://docs.fal.ai/authentication/key-based';
+
+	icon = 'fa:robot' as const;
 
 	properties: INodeProperties[] = [
 		{
@@ -30,6 +37,15 @@ export class FalAiApi implements ICredentialType {
 			headers: {
 				Authorization: '=Key {{$credentials.apiKey}}',
 			},
+		},
+	};
+
+	test: ICredentialTestRequest = {
+		request: {
+			baseURL: 'https://queue.fal.run',
+			url: '/fal-ai/flux/dev',
+			method: 'POST',
+			body: {},
 		},
 	};
 }
