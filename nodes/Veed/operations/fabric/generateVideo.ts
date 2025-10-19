@@ -1,6 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { validateUrl } from '../../utils/validators';
-import { submitFabricRequest, pollForCompletion, fetchVideoResult } from '../../utils/api';
+import { submitFabricRequest, waitForCompletion, fetchVideoResult } from '../../utils/api';
 
 /**
  * Generate a talking head video using Fabric model
@@ -20,7 +20,6 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 			const resolution = this.getNodeParameter('resolution', i) as string;
 			const aspectRatio = this.getNodeParameter('aspectRatio', i) as string;
 			const options = this.getNodeParameter('options', i, {}) as {
-				pollingInterval?: number;
 				timeout?: number;
 			};
 
@@ -29,7 +28,6 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 			validateUrl(audioUrl, 'Audio URL');
 
 			// Convert user-friendly units to milliseconds
-			const pollingIntervalMs = (options.pollingInterval || 5) * 1000; // seconds to ms
 			const timeoutMs = (options.timeout || 10) * 60 * 1000; // minutes to ms
 			const startTime = Date.now();
 
@@ -46,10 +44,9 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 				`Fabric generation request submitted: ${submitResult.request_id} (Queue position: ${submitResult.queue_position})`,
 			);
 
-			const statusResult = await pollForCompletion.call(this, {
+			const statusResult = await waitForCompletion.call(this, {
 				statusUrl: submitResult.status_url,
 				apiKey,
-				pollingInterval: pollingIntervalMs,
 				timeout: timeoutMs,
 			});
 

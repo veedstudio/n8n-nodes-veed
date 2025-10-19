@@ -60,7 +60,6 @@
 				"resolution": "480p",
 				"aspectRatio": "9:16",
 				"options": {
-					"pollingInterval": 3,
 					"timeout": 5
 				}
 			},

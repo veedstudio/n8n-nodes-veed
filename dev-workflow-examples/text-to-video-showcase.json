@@ -159,7 +159,6 @@
 				"resolution": "={{ $('📝 Set Ad Concept').item.json.resolution }}",
 				"aspectRatio": "={{ $('📝 Set Ad Concept').item.json.aspectRatio }}",
 				"options": {
-					"pollingInterval": 5,
 					"timeout": 15
 				}
 			},

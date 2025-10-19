@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { IExecuteFunctions } from 'n8n-workflow';
-import { submitFabricRequest, pollForCompletion, fetchVideoResult } from '../nodes/Veed/utils/api';
+import { submitFabricRequest, waitForCompletion, fetchVideoResult } from '../nodes/Veed/utils/api';
 
 /**
  * Integration tests for Veed Fabric API integration
@@ -114,7 +114,7 @@ describe('Fabric API Integration (Mocked)', () => {
 		});
 	});
 
-	describe('pollForCompletion', () => {
+	describe('waitForCompletion', () => {
 		it('should poll until completion and return result', async () => {
 			// Mock polling sequence: IN_QUEUE -> IN_PROGRESS -> COMPLETED
 			global.fetch = vi
@@ -142,10 +142,9 @@ describe('Fabric API Integration (Mocked)', () => {
 					}),
 				});
 
-			const result = await pollForCompletion.call(mockThis, {
+			const result = await waitForCompletion.call(mockThis, {
 				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
-				pollingInterval: 100,
 				timeout: 10000,
 			});
 
@@ -166,10 +165,9 @@ describe('Fabric API Integration (Mocked)', () => {
 			});
 
 			await expect(
-				pollForCompletion.call(mockThis, {
+				waitForCompletion.call(mockThis, {
 					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
-					pollingInterval: 100,
 					timeout: 10000,
 				}),
 			).rejects.toThrow('Video generation failed');
@@ -185,10 +183,9 @@ describe('Fabric API Integration (Mocked)', () => {
 			});
 
 			await expect(
-				pollForCompletion.call(mockThis, {
+				waitForCompletion.call(mockThis, {
 					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
-					pollingInterval: 100,
 					timeout: 10000,
 				}),
 			).rejects.toThrow('Video generation failed: Unknown error');
@@ -205,10 +202,9 @@ describe('Fabric API Integration (Mocked)', () => {
 			});
 
 			await expect(
-				pollForCompletion.call(mockThis, {
+				waitForCompletion.call(mockThis, {
 					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
-					pollingInterval: 100,
 					timeout: 500,
 				}),
 			).rejects.toThrow('timed out');
@@ -224,10 +220,9 @@ describe('Fabric API Integration (Mocked)', () => {
 				}),
 			});
 
-			const result = await pollForCompletion.call(mockThis, {
+			const result = await waitForCompletion.call(mockThis, {
 				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
-				pollingInterval: 100,
 				timeout: 10000,
 			});
 
@@ -263,7 +258,7 @@ describe('Fabric API Integration (Mocked)', () => {
 					}),
 				});
 
-			await pollForCompletion.call(mockThis, {
+			await waitForCompletion.call(mockThis, {
 				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
 				pollingInterval: 100,
@@ -288,10 +283,9 @@ describe('Fabric API Integration (Mocked)', () => {
 					}),
 				});
 
-			const result = await pollForCompletion.call(mockThis, {
+			const result = await waitForCompletion.call(mockThis, {
 				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
-				pollingInterval: 100,
 				timeout: 10000,
 			});
 
@@ -305,10 +299,9 @@ describe('Fabric API Integration (Mocked)', () => {
 			global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
 			await expect(
-				pollForCompletion.call(mockThis, {
+				waitForCompletion.call(mockThis, {
 					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
-					pollingInterval: 100,
 					timeout: 10000,
 				}),
 			).rejects.toThrow('Failed to check status after 3 attempts');
@@ -321,10 +314,9 @@ describe('Fabric API Integration (Mocked)', () => {
 			});
 
 			await expect(
-				pollForCompletion.call(mockThis, {
+				waitForCompletion.call(mockThis, {
 					statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 					apiKey: 'test_key',
-					pollingInterval: 100,
 					timeout: 10000,
 				}),
 			).rejects.toThrow('Status check failed: Internal Server Error');
