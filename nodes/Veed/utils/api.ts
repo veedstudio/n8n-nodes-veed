@@ -215,7 +215,11 @@ export async function waitForCompletion(
 
 						// Log current status
 						this.logger.info(`Status: ${statusResult.status}`);
-					} catch {
+					} catch (parseError) {
+						// If it's a NodeOperationError, rethrow it
+						if (parseError instanceof NodeOperationError) {
+							throw parseError;
+						}
 						// Skip invalid JSON lines (like ping events)
 						continue;
 					}

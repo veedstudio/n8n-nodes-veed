@@ -3,6 +3,38 @@ import type { IExecuteFunctions } from 'n8n-workflow';
 import { submitFabricRequest, waitForCompletion, fetchVideoResult } from '../nodes/Veed/utils/api';
 
 /**
+ * Helper to create a mock ReadableStream for SSE streaming
+ */
+function createMockSSEStream(events: Array<{ data: any }>) {
+	const encoder = new TextEncoder();
+	let eventIndex = 0;
+	let closed = false;
+
+	return new ReadableStream({
+		pull(controller) {
+			if (eventIndex < events.length) {
+				const event = events[eventIndex++];
+				const sseData = `data: ${JSON.stringify(event.data)}\n\n`;
+				controller.enqueue(encoder.encode(sseData));
+
+				// Close the stream after all events are sent
+				if (eventIndex === events.length && !closed) {
+					closed = true;
+					// Use setTimeout to ensure the last event is processed before closing
+					setTimeout(() => {
+						try {
+							controller.close();
+						} catch (e) {
+							// Ignore if already closed
+						}
+					}, 50);
+				}
+			}
+		},
+	});
+}
+
+/**
  * Integration tests for Veed Fabric API integration
  */
 
@@ -115,32 +147,24 @@ describe('Fabric API Integration (Mocked)', () => {
 	});
 
 	describe('waitForCompletion', () => {
-		it('should poll until completion and return result', async () => {
-			// Mock polling sequence: IN_QUEUE -> IN_PROGRESS -> COMPLETED
-			global.fetch = vi
-				.fn()
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
-						status: 'IN_QUEUE',
-						logs: [],
-					}),
-				})
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
-						status: 'IN_PROGRESS',
-						logs: [{ message: 'Diffusing: 50%' }],
-					}),
-				})
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
+		it('should stream until completion and return result', async () => {
+			// Mock streaming sequence: IN_QUEUE -> IN_PROGRESS -> COMPLETED
+			const stream = createMockSSEStream([
+				{ data: { status: 'IN_QUEUE', logs: [] } },
+				{ data: { status: 'IN_PROGRESS', logs: [{ message: 'Diffusing: 50%' }] } },
+				{
+					data: {
 						status: 'COMPLETED',
 						response_url: 'https://queue.fal.run/test/requests/test_req_123',
 						logs: [{ message: 'Diffusing: 100%' }],
-					}),
-				});
+					},
+				},
+			]);
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				body: stream,
+			});
 
 			const result = await waitForCompletion.call(mockThis, {
 				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
@@ -151,17 +175,26 @@ describe('Fabric API Integration (Mocked)', () => {
 			expect(result.status).toBe('COMPLETED');
 			expect(result.response_url).toBe('https://queue.fal.run/test/requests/test_req_123');
 
-			// Should have polled 3 times
-			expect(global.fetch).toHaveBeenCalledTimes(3);
+			// Should have called streaming endpoint
+			expect(global.fetch).toHaveBeenCalledWith(
+				expect.stringContaining('/stream'),
+				expect.any(Object),
+			);
 		});
 
 		it('should throw error when generation fails', async () => {
+			const stream = createMockSSEStream([
+				{
+					data: {
+						status: 'FAILED',
+						logs: [{ message: 'Generation failed: Invalid input' }],
+					},
+				},
+			]);
+
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({
-					status: 'FAILED',
-					logs: [{ message: 'Generation failed: Invalid input' }],
-				}),
+				body: stream,
 			});
 
 			await expect(
@@ -174,12 +207,18 @@ describe('Fabric API Integration (Mocked)', () => {
 		});
 
 		it('should throw error with "Unknown error" when generation fails without logs', async () => {
+			const stream = createMockSSEStream([
+				{
+					data: {
+						status: 'FAILED',
+						logs: [],
+					},
+				},
+			]);
+
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({
-					status: 'FAILED',
-					logs: [],
-				}),
+				body: stream,
 			});
 
 			await expect(
@@ -192,13 +231,22 @@ describe('Fabric API Integration (Mocked)', () => {
 		});
 
 		it('should throw error when timeout is exceeded', async () => {
-			// Mock always returns IN_PROGRESS
+			// Create a stream that never completes (keeps sending IN_PROGRESS)
+			const encoder = new TextEncoder();
+			const stream = new ReadableStream({
+				async start(controller) {
+					// Send IN_PROGRESS forever
+					while (true) {
+						const sseData = `data: ${JSON.stringify({ status: 'IN_PROGRESS', logs: [] })}\n\n`;
+						controller.enqueue(encoder.encode(sseData));
+						await new Promise((resolve) => setTimeout(resolve, 10));
+					}
+				},
+			});
+
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({
-					status: 'IN_PROGRESS',
-					logs: [],
-				}),
+				body: stream,
 			});
 
 			await expect(
@@ -211,13 +259,19 @@ describe('Fabric API Integration (Mocked)', () => {
 		});
 
 		it('should return complete status result when completed', async () => {
+			const stream = createMockSSEStream([
+				{
+					data: {
+						status: 'COMPLETED',
+						response_url: 'https://queue.fal.run/test/requests/test_req_123',
+						logs: [],
+					},
+				},
+			]);
+
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: true,
-				json: async () => ({
-					status: 'COMPLETED',
-					response_url: 'https://queue.fal.run/test/requests/test_req_123',
-					logs: [],
-				}),
+				body: stream,
 			});
 
 			const result = await waitForCompletion.call(mockThis, {
@@ -233,35 +287,26 @@ describe('Fabric API Integration (Mocked)', () => {
 			});
 		});
 
-		it('should extract and log progress during polling', async () => {
-			global.fetch = vi
-				.fn()
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
-						status: 'IN_PROGRESS',
-						logs: [{ message: 'Diffusing: 25%' }],
-					}),
-				})
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
-						status: 'IN_PROGRESS',
-						logs: [{ message: 'Diffusing: 75%' }],
-					}),
-				})
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
+		it('should extract and log progress during streaming', async () => {
+			const stream = createMockSSEStream([
+				{ data: { status: 'IN_PROGRESS', logs: [{ message: 'Diffusing: 25%' }] } },
+				{ data: { status: 'IN_PROGRESS', logs: [{ message: 'Diffusing: 75%' }] } },
+				{
+					data: {
 						status: 'COMPLETED',
 						data: { video: { url: 'https://fal-cdn.com/result.mp4' } },
-					}),
-				});
+					},
+				},
+			]);
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				body: stream,
+			});
 
 			await waitForCompletion.call(mockThis, {
 				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
 				apiKey: 'test_key',
-				pollingInterval: 100,
 				timeout: 10000,
 			});
 
@@ -270,32 +315,8 @@ describe('Fabric API Integration (Mocked)', () => {
 			expect(mockThis.logger.info).toHaveBeenCalledWith('Generation progress: 75%');
 		});
 
-		it('should retry on transient network errors', async () => {
-			// First attempt fails, second succeeds
-			global.fetch = vi
-				.fn()
-				.mockRejectedValueOnce(new Error('Network error'))
-				.mockResolvedValueOnce({
-					ok: true,
-					json: async () => ({
-						status: 'COMPLETED',
-						response_url: 'https://queue.fal.run/test/requests/test_req_123',
-					}),
-				});
-
-			const result = await waitForCompletion.call(mockThis, {
-				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
-				apiKey: 'test_key',
-				timeout: 10000,
-			});
-
-			expect(result.status).toBe('COMPLETED');
-			expect(result.response_url).toBe('https://queue.fal.run/test/requests/test_req_123');
-			expect(global.fetch).toHaveBeenCalledTimes(2); // Failed once, succeeded once
-		});
-
-		it('should fail after max retries', async () => {
-			// Always fails
+		it('should throw error when stream connection fails', async () => {
+			// Connection fails
 			global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
 			await expect(
@@ -304,10 +325,10 @@ describe('Fabric API Integration (Mocked)', () => {
 					apiKey: 'test_key',
 					timeout: 10000,
 				}),
-			).rejects.toThrow('Failed to check status after 3 attempts');
+			).rejects.toThrow('Failed to stream status updates');
 		});
 
-		it('should throw error when status check API fails', async () => {
+		it('should throw error when status stream API fails', async () => {
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: false,
 				statusText: 'Internal Server Error',
@@ -319,7 +340,7 @@ describe('Fabric API Integration (Mocked)', () => {
 					apiKey: 'test_key',
 					timeout: 10000,
 				}),
-			).rejects.toThrow('Status check failed: Internal Server Error');
+			).rejects.toThrow('Failed to connect to status stream');
 		});
 	});
 
