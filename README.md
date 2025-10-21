@@ -7,8 +7,8 @@ Interact with Veed AI services in your n8n workflows.
 - **Fabric Video Generation**: Create AI-powered talking head videos from images and audio
 - Powered by [fal.ai](https://fal.ai)
 - Support for multiple model versions (Standard & Fast)
-- Automatic progress tracking during generation
-- Configurable timeouts and polling intervals
+- Real-time progress tracking via streaming status updates
+- Configurable timeouts
 
 ## Installation
 
@@ -74,17 +74,12 @@ Generate realistic talking head videos from a still image and audio file.
 
 #### Options (Advanced)
 
-**Polling Interval** (default: 5 seconds)
-
-- How often to check generation status
-- Lower = more frequent updates, more API calls
-- Range: 1-30 seconds
-
 **Timeout** (default: 10 minutes)
 
 - Maximum time to wait for generation
 - Recommended: 10+ minutes for longer videos, 15+ for 720p
 - Range: 1-60 minutes
+- Note: The node uses fal.ai's streaming API for real-time status updates
 
 ## 🎬 Showcase Workflows
 
@@ -232,6 +227,14 @@ Contributions are welcome! Please:
 4. Add tests
 5. Run `pnpm lint:fix`
 6. Submit a pull request
+
+### n8n Community Node Restrictions
+
+When contributing, be aware of n8n's community node restrictions:
+
+- **❌ No `setTimeout` or `setInterval`**: These global timers are not allowed.
+- **✅ Required properties**: All nodes must have `usableAsTool` property
+- **✅ Credentials**: Must have `icon` and `test` properties
 
 ## License
 

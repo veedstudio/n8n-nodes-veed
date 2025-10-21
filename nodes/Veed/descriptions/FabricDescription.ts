@@ -161,19 +161,6 @@ export const fabricFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Polling Interval (Seconds)',
-				name: 'pollingInterval',
-				type: 'number',
-				default: 5,
-				description: 'Seconds between status checks',
-				hint: 'Lower values = more frequent checks but more API calls. Recommended: 5 seconds',
-				typeOptions: {
-					minValue: 1,
-					maxValue: 30,
-					numberPrecision: 0,
-				},
-			},
-			{
 				displayName: 'Timeout (Minutes)',
 				name: 'timeout',
 				type: 'number',

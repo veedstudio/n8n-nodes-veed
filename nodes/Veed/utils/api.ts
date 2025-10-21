@@ -8,13 +8,6 @@ import { extractProgress } from './progress';
 const FAL_QUEUE_BASE_URL = 'https://queue.fal.run';
 
 /**
- * Sleep utility for polling delays
- * as per Airtop official example
- */
-// eslint-disable-next-line
-const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
-/**
  * fal.ai request status types
  */
 type FalStatus = 'IN_QUEUE' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
@@ -122,82 +115,128 @@ export async function submitFabricRequest(
 }
 
 /**
- * Poll for completion of a Fabric video generation request
+ * Stream status updates for a Fabric video generation request using fal.ai's streaming endpoint
+ * Reference: https://docs.fal.ai/model-apis/model-endpoints/queue#streaming-status
  */
-export async function pollForCompletion(
+export async function waitForCompletion(
 	this: IExecuteFunctions,
 	params: {
 		statusUrl: string;
 		apiKey: string;
-		pollingInterval: number;
 		timeout: number;
 	},
 ): Promise<FalStatusResult> {
-	const { statusUrl, apiKey, pollingInterval, timeout } = params;
+	const { statusUrl, apiKey, timeout } = params;
 	const startTime = Date.now();
-	const maxRetries = 3;
 
-	this.logger.info(`Polling status at: ${statusUrl}`);
+	// Use the streaming endpoint with logs enabled
+	const streamUrl = `${statusUrl}/stream?logs=1`;
+	this.logger.info(`Streaming status from: ${streamUrl}`);
 
-	while (Date.now() - startTime < timeout) {
-		let attempt = 0;
+	try {
+		const response = await fetch(streamUrl, {
+			headers: {
+				Authorization: `Key ${apiKey}`,
+			},
+		});
 
-		while (attempt < maxRetries) {
-			try {
-				const response = await fetch(statusUrl, {
-					headers: {
-						Authorization: `Key ${apiKey}`,
-					},
-				});
+		if (!response.ok) {
+			throw new Error(`Failed to connect to status stream: ${response.statusText}`);
+		}
 
-				if (!response.ok) {
-					throw new Error(`Status check failed: ${response.statusText}`);
-				}
+		if (!response.body) {
+			throw new Error('Response body is null');
+		}
 
-				const statusResult = (await response.json()) as FalStatusResult;
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = '';
 
-				if (statusResult.status === 'COMPLETED') {
-					this.logger.info('Generation completed!');
-					return statusResult;
-				}
+		while (true) {
+			// Check timeout
+			if (Date.now() - startTime > timeout) {
+				reader.cancel();
+				throw new NodeOperationError(
+					this.getNode(),
+					`Video generation timed out after ${timeout}ms. Try increasing the timeout in Options or use a lower resolution.`,
+				);
+			}
 
-				if (statusResult.status === 'FAILED') {
-					const errorMessage =
-						statusResult.logs?.[statusResult.logs.length - 1]?.message || 'Unknown error';
-					throw new NodeOperationError(this.getNode(), `Video generation failed: ${errorMessage}`);
-				}
+			const { done, value } = await reader.read();
 
-				// Extract and log progress if available
-				if (statusResult.logs && statusResult.logs.length > 0) {
-					const progress = extractProgress(statusResult.logs);
-					if (progress !== null) {
-						this.logger.info(`Generation progress: ${progress}%`);
+			if (done) {
+				break;
+			}
+
+			// Decode the chunk and add to buffer
+			buffer += decoder.decode(value, { stream: true });
+
+			// Process complete lines (SSE format uses \n\n to separate events)
+			const lines = buffer.split('\n');
+			buffer = lines.pop() || ''; // Keep the last incomplete line in buffer
+
+			for (const line of lines) {
+				// SSE data lines start with "data: "
+				if (line.startsWith('data: ')) {
+					const data = line.slice(6); // Remove "data: " prefix
+
+					if (data.trim() === '') {
+						continue; // Skip empty data
+					}
+
+					try {
+						const statusResult = JSON.parse(data) as FalStatusResult;
+
+						// Log progress if available
+						if (statusResult.logs && statusResult.logs.length > 0) {
+							const progress = extractProgress(statusResult.logs);
+							if (progress !== null) {
+								this.logger.info(`Generation progress: ${progress}%`);
+							}
+						}
+
+						// Check if completed
+						if (statusResult.status === 'COMPLETED') {
+							this.logger.info('Generation completed!');
+							reader.cancel();
+							return statusResult;
+						}
+
+						// Check if failed
+						if (statusResult.status === 'FAILED') {
+							const errorMessage =
+								statusResult.logs?.[statusResult.logs.length - 1]?.message || 'Unknown error';
+							reader.cancel();
+							throw new NodeOperationError(
+								this.getNode(),
+								`Video generation failed: ${errorMessage}`,
+							);
+						}
+
+						// Log current status
+						this.logger.info(`Status: ${statusResult.status}`);
+					} catch (parseError) {
+						// If it's a NodeOperationError, rethrow it
+						if (parseError instanceof NodeOperationError) {
+							throw parseError;
+						}
+						// Skip invalid JSON lines (like ping events)
+						continue;
 					}
 				}
-
-				// Break retry loop on successful poll
-				break;
-			} catch (error) {
-				attempt++;
-				if (attempt >= maxRetries) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`Failed to check status after ${maxRetries} attempts: ${error.message}`,
-					);
-				}
-				// Exponential backoff
-				await sleep(1000 * attempt);
 			}
 		}
 
-		// Wait before next poll
-		await sleep(pollingInterval);
+		throw new NodeOperationError(this.getNode(), 'Stream ended without completion status');
+	} catch (error) {
+		if (error instanceof NodeOperationError) {
+			throw error;
+		}
+		throw new NodeOperationError(
+			this.getNode(),
+			`Failed to stream status updates: ${error.message}`,
+		);
 	}
-
-	throw new NodeOperationError(
-		this.getNode(),
-		`Video generation timed out after ${timeout}ms. Try increasing the timeout in Options or use a lower resolution.`,
-	);
 }
 
 /**

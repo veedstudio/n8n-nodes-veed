@@ -204,4 +204,7 @@ A: fal.ai operates on pay-per-use. You'll be charged based on generation time. C
 A: This node uses fal.ai's public Fabric model, not Veed's API. You need a fal.ai account and API key.
 
 **Q: Why is my workflow blocking for so long?**
-A: The node waits for video generation to complete. This is expected behavior. Future versions may support webhook callbacks for non-blocking operation.
+A: The node streams status updates in real-time until video generation completes. This is expected behavior - video generation takes time depending on audio length and resolution. The node will show progress updates in the logs.
+
+**Q: How does the status tracking work?**
+A: The node uses fal.ai's streaming API (Server-Sent Events) to receive real-time status updates.
