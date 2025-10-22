@@ -17,7 +17,8 @@ export class Veed implements INodeType {
 		version: 1,
 		usableAsTool: true,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Interact with Veed AI services',
+		description:
+			'Generate AI talking videos from an image and audio file using the Veed Fabric API. Automate creation of realistic talking videos, animation videos and ai avatars directly in your n8n workflows.',
 		defaults: {
 			name: 'VEED AI Video API',
 		},
