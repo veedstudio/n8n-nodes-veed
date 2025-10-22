@@ -1,6 +1,6 @@
 # n8n-nodes-veed
 
-Interact with Veed AI services in your n8n workflows.
+Generate AI talking videos from images and audio using the Veed Fabric API. Automate creation of realistic talking videos, animation videos and AI avatars directly in your n8n workflows.
 
 ## Features
 
