@@ -82,36 +82,37 @@ export async function submitFabricRequest(
 		audioUrl: string;
 		resolution: string;
 		aspectRatio: string;
-		apiKey: string;
 	},
 ): Promise<FalSubmitResult> {
-	const { model, imageUrl, audioUrl, resolution, aspectRatio, apiKey } = params;
+	const { model, imageUrl, audioUrl, resolution, aspectRatio } = params;
 
-	const response = await fetch(`${FAL_QUEUE_BASE_URL}/${model}`, {
-		method: 'POST',
-		headers: {
-			Authorization: `Key ${apiKey}`,
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			image_url: imageUrl,
-			audio_url: audioUrl,
-			resolution,
-			aspect_ratio: aspectRatio,
-		}),
-	});
+	try {
+		const data = (await this.helpers.httpRequestWithAuthentication.call(this, 'falAiApi', {
+			method: 'POST',
+			url: `${FAL_QUEUE_BASE_URL}/${model}`,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: {
+				image_url: imageUrl,
+				audio_url: audioUrl,
+				resolution,
+				aspect_ratio: aspectRatio,
+			},
+			json: true,
+		})) as FalSubmitResult;
 
-	if (!response.ok) {
-		const errorText = await response.text();
+		this.logger.info(
+			`Request submitted: ${data.request_id}, Queue position: ${data.queue_position}`,
+		);
+		return data;
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
 		throw new NodeOperationError(
 			this.getNode(),
-			`Failed to submit generation request: ${response.statusText}. ${errorText}`,
+			`Failed to submit generation request: ${errorMessage}`,
 		);
 	}
-
-	const data = (await response.json()) as FalSubmitResult;
-	this.logger.info(`Request submitted: ${data.request_id}, Queue position: ${data.queue_position}`);
-	return data;
 }
 
 /**
@@ -122,11 +123,10 @@ export async function waitForCompletion(
 	this: IExecuteFunctions,
 	params: {
 		statusUrl: string;
-		apiKey: string;
 		timeout: number;
 	},
 ): Promise<FalStatusResult> {
-	const { statusUrl, apiKey, timeout } = params;
+	const { statusUrl, timeout } = params;
 	const startTime = Date.now();
 
 	// Use the streaming endpoint with logs enabled
@@ -134,95 +134,79 @@ export async function waitForCompletion(
 	this.logger.info(`Streaming status from: ${streamUrl}`);
 
 	try {
-		const response = await fetch(streamUrl, {
-			headers: {
-				Authorization: `Key ${apiKey}`,
-			},
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, 'falAiApi', {
+			method: 'GET',
+			url: streamUrl,
+			returnFullResponse: true,
 		});
-
-		if (!response.ok) {
-			throw new Error(`Failed to connect to status stream: ${response.statusText}`);
-		}
 
 		if (!response.body) {
 			throw new Error('Response body is null');
 		}
 
-		const reader = response.body.getReader();
-		const decoder = new TextDecoder();
-		let buffer = '';
+		// Parse the response body as a string (SSE format)
+		const bodyText =
+			typeof response.body === 'string'
+				? response.body
+				: Buffer.isBuffer(response.body)
+					? response.body.toString('utf-8')
+					: JSON.stringify(response.body);
 
-		while (true) {
+		const lines = bodyText.split('\n');
+
+		for (const line of lines) {
 			// Check timeout
 			if (Date.now() - startTime > timeout) {
-				reader.cancel();
 				throw new NodeOperationError(
 					this.getNode(),
 					`Video generation timed out after ${timeout}ms. Try increasing the timeout in Options or use a lower resolution.`,
 				);
 			}
 
-			const { done, value } = await reader.read();
+			// SSE data lines start with "data: "
+			if (line.startsWith('data: ')) {
+				const data = line.slice(6); // Remove "data: " prefix
 
-			if (done) {
-				break;
-			}
+				if (data.trim() === '') {
+					continue; // Skip empty data
+				}
 
-			// Decode the chunk and add to buffer
-			buffer += decoder.decode(value, { stream: true });
+				try {
+					const statusResult = JSON.parse(data) as FalStatusResult;
 
-			// Process complete lines (SSE format uses \n\n to separate events)
-			const lines = buffer.split('\n');
-			buffer = lines.pop() || ''; // Keep the last incomplete line in buffer
-
-			for (const line of lines) {
-				// SSE data lines start with "data: "
-				if (line.startsWith('data: ')) {
-					const data = line.slice(6); // Remove "data: " prefix
-
-					if (data.trim() === '') {
-						continue; // Skip empty data
+					// Log progress if available
+					if (statusResult.logs && statusResult.logs.length > 0) {
+						const progress = extractProgress(statusResult.logs);
+						if (progress !== null) {
+							this.logger.info(`Generation progress: ${progress}%`);
+						}
 					}
 
-					try {
-						const statusResult = JSON.parse(data) as FalStatusResult;
-
-						// Log progress if available
-						if (statusResult.logs && statusResult.logs.length > 0) {
-							const progress = extractProgress(statusResult.logs);
-							if (progress !== null) {
-								this.logger.info(`Generation progress: ${progress}%`);
-							}
-						}
-
-						// Check if completed
-						if (statusResult.status === 'COMPLETED') {
-							this.logger.info('Generation completed!');
-							reader.cancel();
-							return statusResult;
-						}
-
-						// Check if failed
-						if (statusResult.status === 'FAILED') {
-							const errorMessage =
-								statusResult.logs?.[statusResult.logs.length - 1]?.message || 'Unknown error';
-							reader.cancel();
-							throw new NodeOperationError(
-								this.getNode(),
-								`Video generation failed: ${errorMessage}`,
-							);
-						}
-
-						// Log current status
-						this.logger.info(`Status: ${statusResult.status}`);
-					} catch (parseError) {
-						// If it's a NodeOperationError, rethrow it
-						if (parseError instanceof NodeOperationError) {
-							throw parseError;
-						}
-						// Skip invalid JSON lines (like ping events)
-						continue;
+					// Check if completed
+					if (statusResult.status === 'COMPLETED') {
+						this.logger.info('Generation completed!');
+						return statusResult;
 					}
+
+					// Check if failed
+					if (statusResult.status === 'FAILED') {
+						const errorMessage =
+							statusResult.logs?.[statusResult.logs.length - 1]?.message || 'Unknown error';
+						throw new NodeOperationError(
+							this.getNode(),
+							`Video generation failed: ${errorMessage}`,
+						);
+					}
+
+					// Log current status
+					this.logger.info(`Status: ${statusResult.status}`);
+				} catch (parseError) {
+					// If it's a NodeOperationError, rethrow it
+					if (parseError instanceof NodeOperationError) {
+						throw parseError;
+					}
+					// Skip invalid JSON lines (like ping events)
+					continue;
 				}
 			}
 		}
@@ -232,9 +216,10 @@ export async function waitForCompletion(
 		if (error instanceof NodeOperationError) {
 			throw error;
 		}
+		const errorMessage = error instanceof Error ? error.message : String(error);
 		throw new NodeOperationError(
 			this.getNode(),
-			`Failed to stream status updates: ${error.message}`,
+			`Failed to stream status updates: ${errorMessage}`,
 		);
 	}
 }
@@ -246,31 +231,26 @@ export async function fetchVideoResult(
 	this: IExecuteFunctions,
 	params: {
 		responseUrl: string;
-		apiKey: string;
 	},
 ): Promise<FalVideoResult> {
-	const { responseUrl, apiKey } = params;
+	const { responseUrl } = params;
 
 	this.logger.info('Fetching video result...');
 
-	const response = await fetch(responseUrl, {
-		headers: {
-			Authorization: `Key ${apiKey}`,
-		},
-	});
+	try {
+		const videoResult = (await this.helpers.httpRequestWithAuthentication.call(this, 'falAiApi', {
+			method: 'GET',
+			url: responseUrl,
+			json: true,
+		})) as FalVideoResult;
 
-	if (!response.ok) {
-		throw new NodeOperationError(
-			this.getNode(),
-			`Failed to fetch video result: ${response.statusText}`,
-		);
+		if (!videoResult.video?.url) {
+			throw new NodeOperationError(this.getNode(), 'Video result returned but no video URL found');
+		}
+
+		return videoResult;
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		throw new NodeOperationError(this.getNode(), `Failed to fetch video result: ${errorMessage}`);
 	}
-
-	const videoResult = (await response.json()) as FalVideoResult;
-
-	if (!videoResult.video?.url) {
-		throw new NodeOperationError(this.getNode(), 'Video result returned but no video URL found');
-	}
-
-	return videoResult;
 }
