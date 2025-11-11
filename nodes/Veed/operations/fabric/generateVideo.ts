@@ -8,8 +8,6 @@ import { submitFabricRequest, waitForCompletion, fetchVideoResult } from '../../
 export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 	const items = this.getInputData();
 	const returnData: INodeExecutionData[] = [];
-	const credentials = await this.getCredentials('falAiApi');
-	const apiKey = credentials.apiKey as string;
 
 	for (let i = 0; i < items.length; i++) {
 		try {
@@ -37,7 +35,6 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 				audioUrl,
 				resolution,
 				aspectRatio,
-				apiKey,
 			});
 
 			this.logger.info(
@@ -46,7 +43,6 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 
 			const statusResult = await waitForCompletion.call(this, {
 				statusUrl: submitResult.status_url,
-				apiKey,
 				timeout: timeoutMs,
 			});
 
@@ -56,7 +52,6 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 
 			const videoResult = await fetchVideoResult.call(this, {
 				responseUrl: submitResult.response_url || statusResult.response_url,
-				apiKey,
 			});
 
 			const duration = Date.now() - startTime;
