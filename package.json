@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-veed",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Generate AI talking videos from images and audio using Veed Fabric API. Create realistic talking videos, animation videos and AI avatars in n8n workflows.",
 	"license": "MIT",
 	"homepage": "https://github.com/veedstudio/n8n-nodes-veed",
@@ -71,10 +71,5 @@
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
-	},
-	"pnpm": {
-		"overrides": {
-			"form-data": ">=4.0.4"
-		}
 	}
 }
