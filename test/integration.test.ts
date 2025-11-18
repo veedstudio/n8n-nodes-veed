@@ -237,23 +237,6 @@ describe('Fabric API Integration (Mocked)', () => {
 			});
 		});
 
-		it('should extract and log progress during streaming', async () => {
-			const sseBody = `data: {"status":"IN_PROGRESS","logs":[{"message":"Diffusing: 25%"}]}\n\ndata: {"status":"IN_PROGRESS","logs":[{"message":"Diffusing: 75%"}]}\n\ndata: {"status":"COMPLETED","data":{"video":{"url":"https://fal-cdn.com/result.mp4"}}}\n\n`;
-
-			mockHttpRequestWithAuthentication.mockResolvedValue({
-				body: sseBody,
-			});
-
-			await waitForCompletion.call(mockThis, {
-				statusUrl: 'https://queue.fal.run/test/requests/test_req_123/status',
-				timeout: 10000,
-			});
-
-			// Should have logged progress updates
-			expect(mockThis.logger.info).toHaveBeenCalledWith('Generation progress: 25%');
-			expect(mockThis.logger.info).toHaveBeenCalledWith('Generation progress: 75%');
-		});
-
 		it('should throw error when stream connection fails', async () => {
 			// Connection fails
 			mockHttpRequestWithAuthentication.mockRejectedValue(new Error('Network error'));
@@ -339,20 +322,6 @@ describe('Fabric API Integration (Mocked)', () => {
 					responseUrl: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
 				}),
 			).rejects.toThrow('Video result returned but no video URL found');
-		});
-
-		it('should log info message when fetching video result', async () => {
-			mockHttpRequestWithAuthentication.mockResolvedValue({
-				video: {
-					url: 'https://fal-cdn.com/result-video.mp4',
-				},
-			});
-
-			await fetchVideoResult.call(mockThis, {
-				responseUrl: 'https://queue.fal.run/veed/fabric-1.0/requests/test_req_123',
-			});
-
-			expect(mockThis.logger.info).toHaveBeenCalledWith('Fetching video result...');
 		});
 	});
 });

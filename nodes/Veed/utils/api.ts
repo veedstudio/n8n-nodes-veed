@@ -1,6 +1,5 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import { extractProgress } from './progress';
 
 /**
  * fal.ai API base URLs
@@ -102,9 +101,6 @@ export async function submitFabricRequest(
 			json: true,
 		})) as FalSubmitResult;
 
-		this.logger.info(
-			`Request submitted: ${data.request_id}, Queue position: ${data.queue_position}`,
-		);
 		return data;
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
@@ -131,7 +127,6 @@ export async function waitForCompletion(
 
 	// Use the streaming endpoint with logs enabled
 	const streamUrl = `${statusUrl}/stream?logs=1`;
-	this.logger.info(`Streaming status from: ${streamUrl}`);
 
 	try {
 		const response = await this.helpers.httpRequestWithAuthentication.call(this, 'falAiApi', {
@@ -174,17 +169,8 @@ export async function waitForCompletion(
 				try {
 					const statusResult = JSON.parse(data) as FalStatusResult;
 
-					// Log progress if available
-					if (statusResult.logs && statusResult.logs.length > 0) {
-						const progress = extractProgress(statusResult.logs);
-						if (progress !== null) {
-							this.logger.info(`Generation progress: ${progress}%`);
-						}
-					}
-
 					// Check if completed
 					if (statusResult.status === 'COMPLETED') {
-						this.logger.info('Generation completed!');
 						return statusResult;
 					}
 
@@ -197,9 +183,6 @@ export async function waitForCompletion(
 							`Video generation failed: ${errorMessage}`,
 						);
 					}
-
-					// Log current status
-					this.logger.info(`Status: ${statusResult.status}`);
 				} catch (parseError) {
 					// If it's a NodeOperationError, rethrow it
 					if (parseError instanceof NodeOperationError) {
@@ -234,8 +217,6 @@ export async function fetchVideoResult(
 	},
 ): Promise<FalVideoResult> {
 	const { responseUrl } = params;
-
-	this.logger.info('Fetching video result...');
 
 	try {
 		const videoResult = (await this.helpers.httpRequestWithAuthentication.call(this, 'falAiApi', {

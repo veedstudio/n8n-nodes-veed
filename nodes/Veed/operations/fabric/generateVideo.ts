@@ -37,10 +37,6 @@ export async function generateVideo(this: IExecuteFunctions): Promise<INodeExecu
 				aspectRatio,
 			});
 
-			this.logger.info(
-				`Fabric generation request submitted: ${submitResult.request_id} (Queue position: ${submitResult.queue_position})`,
-			);
-
 			const statusResult = await waitForCompletion.call(this, {
 				statusUrl: submitResult.status_url,
 				timeout: timeoutMs,
