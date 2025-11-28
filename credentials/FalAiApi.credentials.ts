@@ -12,7 +12,7 @@ export class FalAiApi implements ICredentialType {
 
 	documentationUrl = 'https://docs.fal.ai/authentication/key-based';
 
-	icon = 'fa:robot' as const;
+	icon = 'file:veed.svg' as const;
 
 	properties: INodeProperties[] = [
 		{
