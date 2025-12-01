@@ -4,7 +4,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { fabricFields, fabricOperations } from './descriptions';
 import { fabric } from './operations';
 
@@ -22,8 +22,8 @@ export class Veed implements INodeType {
 		defaults: {
 			name: 'VEED AI Video API',
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'falAiApi',
