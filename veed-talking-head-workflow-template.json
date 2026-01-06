@@ -958,7 +958,7 @@
             },
             {
               "name": "caption",
-              "value": "={{ $('Prepare Publish Data').item.json.title + '\\n\\n' + $('Prepare Publish Data').item.json.description }}"
+              "value": "={{ $('Prepare Publish Data').item.json.title + '\n\n' + $('Prepare Publish Data').item.json.description }}"
             }
           ]
         },
@@ -1039,7 +1039,7 @@
     {
       "parameters": {
         "person": "YOUR_LINKEDIN_PERSON_URN",
-        "text": "={{ $('Prepare Publish Data').item.json.title }}\\n\\n{{ $('Prepare Publish Data').item.json.description }}",
+        "text": "={{ $('Prepare Publish Data').item.json.title + '\n\n' + $('Prepare Publish Data').item.json.description }}",
         "shareMediaCategory": "VIDEO",
         "additionalFields": {}
       },
@@ -1108,7 +1108,7 @@
     {
       "parameters": {
         "httpRequestMethod": "POST",
-        "graphApiVersion": "v20.0",
+        "graphApiVersion": "v23.0",
         "node": "YOUR_FACEBOOK_PAGE_ID",
         "edge": "videos",
         "sendBinaryData": true,
@@ -1118,7 +1118,7 @@
             "parameter": [
               {
                 "name": "description",
-                "value": "={{ $('Prepare Publish Data').item.json.title }}\\n\\n{{ $('Prepare Publish Data').item.json.description }}"
+                "value": "={{ $('Prepare Publish Data').item.json.title + '\n\n' + $('Prepare Publish Data').item.json.description }}"
               },
               {
                 "name": "title",
@@ -1139,20 +1139,9 @@
       "onError": "continueRegularOutput"
     },
     {
-      "parameters": {},
-      "id": "3c242c03-794f-4380-800e-712f45612674",
-      "name": "No Platform",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        33024,
-        4800
-      ]
-    },
-    {
       "parameters": {
         "mode": "chooseBranch",
-        "numberInputs": 7
+        "numberInputs": 6
       },
       "id": "1e758205-5321-441e-a3e8-07aae58b51b6",
       "name": "Merge Results",
@@ -1520,13 +1509,6 @@
             "type": "main",
             "index": 0
           }
-        ],
-        [
-          {
-            "node": "No Platform",
-            "type": "main",
-            "index": 0
-          }
         ]
       ]
     },
@@ -1535,13 +1517,6 @@
         [
           {
             "node": "Instagram Create",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "No Platform",
             "type": "main",
             "index": 0
           }
@@ -1556,13 +1531,6 @@
             "type": "main",
             "index": 0
           }
-        ],
-        [
-          {
-            "node": "No Platform",
-            "type": "main",
-            "index": 0
-          }
         ]
       ]
     },
@@ -1571,13 +1539,6 @@
         [
           {
             "node": "LinkedIn Post",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "No Platform",
             "type": "main",
             "index": 0
           }
@@ -1592,13 +1553,6 @@
             "type": "main",
             "index": 0
           }
-        ],
-        [
-          {
-            "node": "No Platform",
-            "type": "main",
-            "index": 0
-          }
         ]
       ]
     },
@@ -1607,13 +1561,6 @@
         [
           {
             "node": "Facebook Post",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "No Platform",
             "type": "main",
             "index": 0
           }
@@ -1715,17 +1662,6 @@
             "node": "Merge Results",
             "type": "main",
             "index": 5
-          }
-        ]
-      ]
-    },
-    "No Platform": {
-      "main": [
-        [
-          {
-            "node": "Merge Results",
-            "type": "main",
-            "index": 6
           }
         ]
       ]
