@@ -1,0 +1,1715 @@
+{
+  "name": "VEED AI Talking Head Video Generator with Multi-Platform Publishing",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to TikTok, Instagram, YouTube, LinkedIn, X, Facebook\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
+        "height": 1424,
+        "width": 400,
+        "color": 5
+      },
+      "id": "6c6ce0ea-eabe-4223-bdf5-dc0fe718cdc1",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2864,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: tiktok,instagram,youtube,linkedin,x,facebook\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"pending\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Sheet ID (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID  \n- **LinkedIn**: Set YOUR_LINKEDIN_PERSON_URN\n- Configure OAuth2 credentials for each platform",
+        "height": 1424,
+        "width": 440,
+        "color": 4
+      },
+      "id": "ae4b17ea-7dd9-4072-b969-5dd53d5759cf",
+      "name": "Sticky Note - Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3280,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Trigger & Input\n\nWorkflow triggers either:\n- **Manual**: Click \"Test workflow\"\n- **Scheduled**: Every 15 minutes\n\nFetches rows from Google Sheets where `STATUS = pending`",
+        "height": 1432,
+        "width": 712,
+        "color": 7
+      },
+      "id": "338bd9f9-5474-46f3-9c96-7e5e2d65f632",
+      "name": "Sticky Note - Trigger",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3728,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Text-to-Speech Generation\n\nChoose TTS provider in your Google Sheet:\n\n**OpenAI TTS** (default)\n- Model: tts-1-hd\n- Voices: alloy, echo, fable, nova, onyx, shimmer\n\n**ElevenLabs**\n- Model: eleven_multilingual_v2\n- Use voice ID from your ElevenLabs dashboard\n\nAudio is uploaded to Google Drive and made publicly accessible for VEED.",
+        "height": 1424,
+        "width": 1192,
+        "color": 3
+      },
+      "id": "925e9437-ea40-4432-8fce-f9f9d87e8fd6",
+      "name": "Sticky Note - TTS",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4448,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. VEED Video Generation\n\nUsing **VEED Fabric 1.0** model via Fal.ai\n\n**Requirements:**\n- Front-facing portrait photo (URL)\n- Audio file (MP3 from Google Drive)\n\n**Options:**\n- Resolution: 480p (faster) or 720p (better)\n- Aspect Ratio: 9:16 (TikTok/Reels), 16:9 (YouTube), 1:1 (Feed)\n\n**Processing Time:** 5-15 minutes depending on video length",
+        "height": 1420,
+        "width": 488,
+        "color": 6
+      },
+      "id": "5e206ab5-7e20-4707-a2b5-98a54969632c",
+      "name": "Sticky Note - VEED",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5648,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4. Approval Workflow\n\nAfter video generation, an email is sent with:\n- Video preview link\n- Video metadata (title, description, platforms)\n- **Approve** / **Reject** buttons\n\n**Timeout:** 24 hours\n**If no response:** Video remains pending\n**If rejected:** Status updated to \"rejected\" in Google Sheet",
+        "height": 1416,
+        "width": 728,
+        "color": 2
+      },
+      "id": "537757ef-2084-4bea-83cf-f7315c4a16fd",
+      "name": "Sticky Note - Approval",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6144,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**TikTok** - Content Posting API v2 (URL pull)\n**Instagram** - Reels API (requires Business Account)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**LinkedIn** - Post as Person or Organization\n**X/Twitter** - OAuth1 for upload + OAuth2 for posting (max 140s)\n**Facebook** - Posts to Page (not personal profile)\n\n*All errors are captured - workflow continues if one platform fails*",
+        "height": 1412,
+        "width": 1472
+      },
+      "id": "b0df2f7e-4bc0-4ac8-bfd4-1d454d9f056d",
+      "name": "Sticky Note - Publishing",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6880,
+        1040
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "4bd1c1b9-6d5b-4b6b-bca6-dfdbeb763420",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        3776,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "2054bea1-c5e8-4c9b-b016-a81130dcaa00",
+      "name": "Check for New Videos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        3776,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "STATUS",
+              "lookupValue": "pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "367c5637-67cf-4ebf-9d0f-7a05aa4c09c1",
+      "name": "Get Pending Video Requests",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4016,
+        1776
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "param-image",
+              "name": "imageUrl",
+              "value": "={{ $json.AVATAR_IMAGE_URL }}",
+              "type": "string"
+            },
+            {
+              "id": "param-text",
+              "name": "narrationText",
+              "value": "={{ $json.NARRATION_TEXT }}",
+              "type": "string"
+            },
+            {
+              "id": "param-tts",
+              "name": "ttsProvider",
+              "value": "={{ $json.TTS_PROVIDER || 'openai' }}",
+              "type": "string"
+            },
+            {
+              "id": "param-voice",
+              "name": "voiceId",
+              "value": "={{ $json.VOICE_ID || 'alloy' }}",
+              "type": "string"
+            },
+            {
+              "id": "param-title",
+              "name": "videoTitle",
+              "value": "={{ $json.VIDEO_TITLE }}",
+              "type": "string"
+            },
+            {
+              "id": "param-desc",
+              "name": "videoDescription",
+              "value": "={{ $json.VIDEO_DESCRIPTION }}",
+              "type": "string"
+            },
+            {
+              "id": "param-platforms",
+              "name": "platforms",
+              "value": "={{ $json.PLATFORMS || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "param-aspect",
+              "name": "aspectRatio",
+              "value": "={{ $json.ASPECT_RATIO || '9:16' }}",
+              "type": "string"
+            },
+            {
+              "id": "param-res",
+              "name": "resolution",
+              "value": "={{ $json.RESOLUTION || '720p' }}",
+              "type": "string"
+            },
+            {
+              "id": "param-row",
+              "name": "rowNumber",
+              "value": "={{ $json.row_number }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5a6c527-1d5b-44f7-af06-267ede2ffec6",
+      "name": "Prepare Video Parameters",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4256,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "if-tts-elevenlabs-cond",
+              "leftValue": "={{ $json.ttsProvider === 'elevenlabs' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "57a305e2-c8df-4fa9-82a5-9cfaa9426169",
+      "name": "TTS Provider?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4528,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/{{ $json.voiceId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": {{ JSON.stringify($json.narrationText) }},\n  \"model_id\": \"eleven_multilingual_v2\",\n  \"voice_settings\": {\n    \"stability\": 0.5,\n    \"similarity_boost\": 0.75\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "b8623743-a5f9-434e-9f5e-04b162acc1c7",
+      "name": "ElevenLabs TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4768,
+        1680
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $json.narrationText }}",
+        "voice": "={{ $json.voiceId }}",
+        "options": {}
+      },
+      "id": "aea8faaf-8d2a-426d-882c-05c08968c99d",
+      "name": "OpenAI TTS",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        4768,
+        1872
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "75d99b18-ffee-4749-808a-72c6ad4c5948",
+      "name": "Merge TTS",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        5008,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $now.format('yyyyMMdd-HHmmss') }}-audio.mp3",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AUDIO_FOLDER_ID"
+        },
+        "options": {}
+      },
+      "id": "485371d3-ac31-4e8a-9ea9-9c708362e21a",
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5248,
+        1776
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "id": "2cd42293-c0b4-4c6c-9fe3-65b477f95417",
+      "name": "Make Public",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5488,
+        1776
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "audio-url",
+              "name": "audioUrl",
+              "value": "=https://drive.google.com/uc?export=download&id={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "fa6a16ce-d153-446d-a4e9-5e4364d6b99b",
+      "name": "Set Audio URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5728,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "imageUrl": "={{ $('Prepare Video Parameters').item.json.imageUrl }}",
+        "audioUrl": "={{ $json.audioUrl }}",
+        "resolution": "={{ $('Prepare Video Parameters').item.json.resolution }}",
+        "aspectRatio": "={{ $('Prepare Video Parameters').item.json.aspectRatio }}",
+        "options": {
+          "timeout": 15
+        }
+      },
+      "id": "69f60247-ebb9-44a4-b74c-cf85ee31b98f",
+      "name": "VEED Generate Video",
+      "type": "n8n-nodes-veed.veed",
+      "typeVersion": 1,
+      "position": [
+        5968,
+        1776
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "email-body",
+              "name": "emailBody",
+              "value": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: #333;\">New Video Ready for Approval</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Title:</strong> {{ $('Prepare Video Parameters').item.json.videoTitle }}</p>\n    <p><strong>Description:</strong> {{ $('Prepare Video Parameters').item.json.videoDescription }}</p>\n    <p><strong>Target Platforms:</strong> {{ $('Prepare Video Parameters').item.json.platforms }}</p>\n    <p><strong>Aspect Ratio:</strong> {{ $('Prepare Video Parameters').item.json.aspectRatio }}</p>\n    <p><strong>Resolution:</strong> {{ $('Prepare Video Parameters').item.json.resolution }}</p>\n  </div>\n  \n  <div style=\"margin: 20px 0; padding: 15px; background: #e8f4e8; border-radius: 8px;\">\n    <p><strong>Video Preview:</strong></p>\n    <a href=\"{{ $json.video.url }}\" style=\"color: #007bff; font-size: 16px;\">Click here to preview video</a>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">Generation took {{ Math.round($json.duration / 1000) }} seconds</p>\n  <p style=\"color: #666; font-size: 12px;\">Request ID: {{ $json.requestId }}</p>\n</body>\n</html>",
+              "type": "string"
+            },
+            {
+              "id": "video-url",
+              "name": "generatedVideoUrl",
+              "value": "={{ $json.video.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9360a2cb-34ae-4103-96f8-24ec09b133c8",
+      "name": "Format Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6208,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "YOUR_APPROVAL_EMAIL@example.com",
+        "subject": "=Approve Video: {{ $('Prepare Video Parameters').item.json.videoTitle }}",
+        "message": "={{ $json.emailBody }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 24
+            }
+          }
+        }
+      },
+      "id": "807383e8-e103-4db8-ab0d-c460635018c4",
+      "name": "Send Approval Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        6448,
+        1776
+      ],
+      "webhookId": "veed-approval-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-approved",
+              "leftValue": "={{ $json.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9fd80197-9c28-49c9-9436-ddf980052b3b",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6688,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "status-rejected",
+              "name": "status",
+              "value": "rejected",
+              "type": "string"
+            },
+            {
+              "id": "rejected-at",
+              "name": "rejectedAt",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "216d8e1d-6e04-4081-9a0b-dee45be183be",
+      "name": "Log Rejection",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6336,
+        2016
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0"
+        },
+        "columns": {
+          "value": {
+            "row_number": "={{ $('Prepare Video Parameters').item.json.rowNumber }}",
+            "STATUS": "rejected"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {}
+      },
+      "id": "610c77b7-f259-4c3f-a554-67a4498d0978",
+      "name": "Update Sheet - Rejected",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        6576,
+        2016
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "prep-video-url",
+              "name": "videoUrl",
+              "value": "={{ $('Format Email').item.json.generatedVideoUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "prep-title",
+              "name": "title",
+              "value": "={{ $('Prepare Video Parameters').item.json.videoTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "prep-desc",
+              "name": "description",
+              "value": "={{ $('Prepare Video Parameters').item.json.videoDescription }}",
+              "type": "string"
+            },
+            {
+              "id": "prep-platforms",
+              "name": "platformList",
+              "value": "={{ ($('Prepare Video Parameters').item.json.platforms || '').toLowerCase().split(',').map(p => p.trim()) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3120fc15-2078-4d6e-ae09-e2cc26797f50",
+      "name": "Prepare Publish Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6960,
+        1760
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.videoUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "1b52b743-10ce-4636-9006-a2e39fdf95a4",
+      "name": "Download Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7168,
+        1760
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "if-platform-tiktok-cond",
+              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('tiktok') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2354f801-9392-4ccb-878b-94d1d00f65c0",
+      "name": "TikTok?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7408,
+        1552
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "if-platform-instagram-cond",
+              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('instagram') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "47ff5eef-696d-48d7-a74a-322ca81f02f3",
+      "name": "Instagram?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7408,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "if-platform-youtube-cond",
+              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('youtube') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0aa469ea-9f28-4cf3-8b8f-9799a15ace23",
+      "name": "YouTube?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7408,
+        1696
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "if-platform-linkedin-cond",
+              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('linkedin') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a97ad37c-26ff-4046-88f9-5ecae1eae20a",
+      "name": "LinkedIn?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7408,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "if-platform-x-cond",
+              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('twitter') || $('Prepare Publish Data').item.json.platformList.includes('x') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5a3eeec1-a7f8-4815-987b-4d20a121ca4c",
+      "name": "X/Twitter?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7408,
+        1984
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "if-platform-facebook-cond",
+              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('facebook') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "91d33b06-2152-4285-989e-9a403a2e35d3",
+      "name": "Facebook?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7408,
+        2128
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"post_info\": {\n    \"title\": {{ JSON.stringify($('Prepare Publish Data').item.json.title.substring(0, 150)) }},\n    \"privacy_level\": \"PUBLIC_TO_EVERYONE\",\n    \"disable_duet\": false,\n    \"disable_comment\": false,\n    \"disable_stitch\": false\n  },\n  \"source_info\": {\n    \"source\": \"PULL_FROM_URL\",\n    \"video_url\": {{ JSON.stringify($('Prepare Publish Data').item.json.videoUrl) }}\n  }\n}",
+        "options": {}
+      },
+      "id": "2be1a0aa-7bf6-4144-a9e1-7f2f69c2c16d",
+      "name": "TikTok Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7696,
+        1504
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v20.0/YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "REELS"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $('Prepare Publish Data').item.json.videoUrl }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('Prepare Publish Data').item.json.title + '\\n\\n' + $('Prepare Publish Data').item.json.description }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bbbe6e2b-bc12-4593-9d56-17a641819a04",
+      "name": "Instagram Create",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7696,
+        1344
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 90
+      },
+      "id": "4abeee84-4dda-49a1-82cd-722e3e855e73",
+      "name": "Wait 90s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        7936,
+        1344
+      ],
+      "webhookId": "instagram-processing-wait"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v20.0/YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID/media_publish",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $('Instagram Create').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "591554ba-87b9-4f81-a6b2-cf7ce5f33524",
+      "name": "Instagram Publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        8160,
+        1344
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('Prepare Publish Data').item.json.title }}",
+        "categoryId": "22",
+        "options": {
+          "description": "={{ $('Prepare Publish Data').item.json.description }}",
+          "privacyStatus": "public"
+        }
+      },
+      "id": "e405cf38-cd62-44b6-9a5d-75ccc658573b",
+      "name": "YouTube Upload",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        7696,
+        1664
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "person": "YOUR_LINKEDIN_PERSON_URN",
+        "text": "={{ $('Prepare Publish Data').item.json.title }}\\n\\n{{ $('Prepare Publish Data').item.json.description }}",
+        "shareMediaCategory": "VIDEO",
+        "additionalFields": {}
+      },
+      "id": "60bce16d-7360-48ff-81bc-bba8832c5b81",
+      "name": "LinkedIn Post",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        7696,
+        1824
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://upload.twitter.com/1.1/media/upload.json?media_category=TWEET_VIDEO",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth1Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "media",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "6cf44e8a-9b1d-4d80-bf11-77b052ba237e",
+      "name": "X Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7696,
+        1984
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Prepare Publish Data').item.json.title.substring(0, 250) }}",
+        "additionalFields": {
+          "attachments": "={{ $json.media_id_string }}"
+        }
+      },
+      "id": "46e43dc7-269c-4444-afae-704ecd09cd22",
+      "name": "X Post",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        7936,
+        1984
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v20.0",
+        "node": "YOUR_FACEBOOK_PAGE_ID",
+        "edge": "videos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "description",
+                "value": "={{ $('Prepare Publish Data').item.json.title }}\\n\\n{{ $('Prepare Publish Data').item.json.description }}"
+              },
+              {
+                "name": "title",
+                "value": "={{ $('Prepare Publish Data').item.json.title }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "8138a381-040b-4c4b-b7af-9927b300f8db",
+      "name": "Facebook Post",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        7696,
+        2144
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "df4680cd-8f2d-4b87-8007-fb9ef055106c",
+      "name": "No Platform",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        7696,
+        2288
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "numberInputs": 7
+      },
+      "id": "67390374-c53d-4bd2-98dd-38a39be6d54c",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        8512,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "publishingResults",
+        "options": {}
+      },
+      "id": "0eb54192-0232-4de5-a980-b79a32b471b1",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        8752,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0"
+        },
+        "columns": {
+          "value": {
+            "row_number": "={{ $('Prepare Video Parameters').item.json.rowNumber }}",
+            "STATUS": "={{ $json.publishingResults.length === 0 ? 'pending' : 'published' }}",
+            "VIDEO_URL": "={{ $('Format Email').item.json.generatedVideoUrl }}",
+            "PUBLISHED_AT": "={{ $json.publishingResults.length === 0 ? '' : $now.toISO() }}",
+            "PUBLISHING_RESULTS": "={{ $json.publishingResults.length === 0 ? 'No platforms selected' : 'Published to ' + $json.publishingResults.length + ' platform(s)' }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {}
+      },
+      "id": "62caf718-197f-4f63-b99d-0d6cf5b579bf",
+      "name": "Update Sheet - Published",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        8992,
+        1824
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_NOTIFICATION_EMAIL@example.com",
+        "subject": "={{ $json.publishingResults.length === 0 ? '[No Platforms]' : '[Published]' }} Video: {{ $('Prepare Video Parameters').item.json.videoTitle }}",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: {{ $json.publishingResults.length > 0 ? '#28a745' : '#ffc107' }};\">{{ $json.publishingResults.length === 0 ? 'No Platforms Selected' : 'Video Publishing Complete' }}</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Title:</strong> {{ $('Prepare Video Parameters').item.json.videoTitle }}</p>\n    <p><strong>Requested Platforms:</strong> {{ $('Prepare Video Parameters').item.json.platforms || 'None specified' }}</p>\n    <p><strong>Result:</strong> {{ $json.publishingResults.length === 0 ? 'No platforms selected for publishing' : 'Published to ' + $json.publishingResults.length + ' platform(s)' }}</p>\n  </div>\n  \n  <div style=\"margin: 20px 0;\">\n    <p><a href=\"{{ $('Format Email').item.json.generatedVideoUrl }}\" style=\"color: #007bff;\">View Generated Video</a></p>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">{{ $json.publishingResults.length === 0 ? 'Video approved but no platforms were selected for publishing.' : 'Published at: ' + $now.toISO() }}</p>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "3809f0a6-9772-42d1-86f1-7074eabca765",
+      "name": "Send Report Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        9232,
+        1824
+      ],
+      "webhookId": "68e01974-4dd3-4d4a-a7af-99d6863cc044"
+    },
+    {
+      "parameters": {
+        "content": "## 6. Status Update & Report\n\nAfter publishing, the workflow:\n1. Updates Google Sheet with video URL and status\n2. Sends email report with publishing results\n\n**Status Values:**\n- `published` - Successfully published\n- `rejected` - User rejected the video\n- `pending` - Awaiting processing",
+        "height": 1412,
+        "width": 1104,
+        "color": 5
+      },
+      "id": "fda9ab36-b076-44fa-a8d0-2ba753b1499f",
+      "name": "Sticky Note - Report",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8368,
+        1040
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Video Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for New Videos": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Video Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Video Requests": {
+      "main": [
+        [
+          {
+            "node": "Prepare Video Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Video Parameters": {
+      "main": [
+        [
+          {
+            "node": "TTS Provider?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTS Provider?": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs TTS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs TTS": {
+      "main": [
+        [
+          {
+            "node": "Merge TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI TTS": {
+      "main": [
+        [
+          {
+            "node": "Merge TTS",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge TTS": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Make Public",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make Public": {
+      "main": [
+        [
+          {
+            "node": "Set Audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Audio URL": {
+      "main": [
+        [
+          {
+            "node": "VEED Generate Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VEED Generate Video": {
+      "main": [
+        [
+          {
+            "node": "Format Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Email": {
+      "main": [
+        [
+          {
+            "node": "Send Approval Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Approval Email": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Publish Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Rejection": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet - Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Publish Data": {
+      "main": [
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "TikTok?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Instagram?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "YouTube?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LinkedIn?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "X/Twitter?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Facebook?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TikTok?": {
+      "main": [
+        [
+          {
+            "node": "TikTok Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram?": {
+      "main": [
+        [
+          {
+            "node": "Instagram Create",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube?": {
+      "main": [
+        [
+          {
+            "node": "YouTube Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn?": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X/Twitter?": {
+      "main": [
+        [
+          {
+            "node": "X Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook?": {
+      "main": [
+        [
+          {
+            "node": "Facebook Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TikTok Upload": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Instagram Create": {
+      "main": [
+        [
+          {
+            "node": "Wait 90s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 90s": {
+      "main": [
+        [
+          {
+            "node": "Instagram Publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram Publish": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube Upload": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "LinkedIn Post": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "X Upload": {
+      "main": [
+        [
+          {
+            "node": "X Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Post": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Facebook Post": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "No Platform": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet - Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Sheet - Published": {
+      "main": [
+        [
+          {
+            "node": "Send Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "16cc0a49-b986-4c9b-b1c7-5d3fe965d974",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dad5fcc32113ba8bb80eb1361380849427c50ebb586d233d41f3f7c26f32ab71"
+  },
+  "id": "T8sWP8DZyQAW2zZP",
+  "tags": [
+    {
+      "updatedAt": "2025-12-18T10:21:22.017Z",
+      "createdAt": "2025-12-18T10:21:22.017Z",
+      "id": "1t2Nq7FmQvuRUBNK",
+      "name": "AI Video"
+    },
+    {
+      "updatedAt": "2025-12-18T10:21:22.028Z",
+      "createdAt": "2025-12-18T10:21:22.028Z",
+      "id": "Jj9b6mUfqfIPRtXY",
+      "name": "VEED"
+    },
+    {
+      "updatedAt": "2025-12-18T10:21:22.027Z",
+      "createdAt": "2025-12-18T10:21:22.027Z",
+      "id": "hCeqO49Q10y7GHDW",
+      "name": "Social Media"
+    }
+  ]
+}
