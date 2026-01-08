@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to TikTok, Instagram, YouTube, LinkedIn, X, Facebook\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
+        "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to Instagram, YouTube, Facebook\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
         "height": 1424,
         "width": 400,
         "color": 5
@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: tiktok,instagram,youtube,linkedin,x,facebook\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"new\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Document nad Sheet IDs (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID  \n- **LinkedIn**: Set YOUR_LINKEDIN_PERSON_URN\n- Configure OAuth2 credentials for each platform",
+        "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: instagram,youtube,facebook\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"new\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Document nad Sheet IDs (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID\n- Configure OAuth2 credentials for each platform",
         "height": 1424,
         "width": 440,
         "color": 4
@@ -67,7 +67,7 @@
     },
     {
       "parameters": {
-        "content": "## 3. VEED Video Generation\n\nUsing **VEED Fabric 1.0** model via Fal.ai\n\n**Requirements:**\n- Front-facing portrait photo (URL)\n- Audio file (MP3 from Google Drive)\n\n**Options:**\n- Resolution: 480p (faster) or 720p (better)\n- Aspect Ratio: 9:16 (TikTok/Reels), 16:9 (YouTube), 1:1 (Feed)\n\n**Processing Time:** 5-15 minutes depending on video length",
+        "content": "## 3. VEED Video Generation\n\nUsing **VEED Fabric 1.0** model via Fal.ai\n\n**Requirements:**\n- Front-facing portrait photo (URL)\n- Audio file (MP3 from Google Drive)\n\n**Options:**\n- Resolution: 480p (faster) or 720p (better)\n- Aspect Ratio: 9:16 (Reels), 16:9 (YouTube), 1:1 (Feed)\n\n**Processing Time:** 5-15 minutes depending on video length",
         "height": 1420,
         "width": 472,
         "color": 6
@@ -99,7 +99,7 @@
     },
     {
       "parameters": {
-        "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**TikTok** - Content Posting API v2 (URL pull)\n**Instagram** - Reels API (requires Business Account)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**LinkedIn** - Post as Person or Organization\n**X/Twitter** - OAuth1 for upload + OAuth2 for posting (max 140s)\n**Facebook** - Posts to Page (not personal profile)\n\n*All errors are captured - workflow continues if one platform fails*",
+        "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**Instagram** - Reels API (requires Business Account)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**Facebook** - Posts to Page (not personal profile)\n\n*All errors are captured - workflow continues if one platform fails*",
         "height": 1412,
         "width": 1472
       },
@@ -731,39 +731,6 @@
           "combinator": "and",
           "conditions": [
             {
-              "id": "if-platform-tiktok-cond",
-              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('tiktok') }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "8ab74bdf-e498-4c22-8128-4e3c030ae2bf",
-      "name": "TikTok?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        32736,
-        4064
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "version": 2,
-            "caseSensitive": false,
-            "typeValidation": "loose"
-          },
-          "combinator": "and",
-          "conditions": [
-            {
               "id": "if-platform-instagram-cond",
               "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('instagram') }}",
               "rightValue": "",
@@ -830,72 +797,6 @@
           "combinator": "and",
           "conditions": [
             {
-              "id": "if-platform-linkedin-cond",
-              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('linkedin') }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "5030b0d1-0f0d-4765-8a1d-5edb31833bc3",
-      "name": "LinkedIn?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        32736,
-        4352
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "version": 2,
-            "caseSensitive": false,
-            "typeValidation": "loose"
-          },
-          "combinator": "and",
-          "conditions": [
-            {
-              "id": "if-platform-x-cond",
-              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('twitter') || $('Prepare Publish Data').item.json.platformList.includes('x') }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "a9246062-727b-487c-8d15-333478eb84c7",
-      "name": "X/Twitter?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        32736,
-        4496
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "version": 2,
-            "caseSensitive": false,
-            "typeValidation": "loose"
-          },
-          "combinator": "and",
-          "conditions": [
-            {
               "id": "if-platform-facebook-cond",
               "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('facebook') }}",
               "rightValue": "",
@@ -917,27 +818,6 @@
         32736,
         4640
       ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "oAuth2Api",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"post_info\": {\n    \"title\": {{ JSON.stringify($('Prepare Publish Data').item.json.title.substring(0, 150)) }},\n    \"privacy_level\": \"PUBLIC_TO_EVERYONE\",\n    \"disable_duet\": false,\n    \"disable_comment\": false,\n    \"disable_stitch\": false\n  },\n  \"source_info\": {\n    \"source\": \"PULL_FROM_URL\",\n    \"video_url\": {{ JSON.stringify($('Prepare Publish Data').item.json.videoUrl) }}\n  }\n}",
-        "options": {}
-      },
-      "id": "28c8b4db-58ab-436e-98d7-884e0f8b974a",
-      "name": "TikTok Upload",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        33024,
-        4016
-      ],
-      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -1038,75 +918,6 @@
     },
     {
       "parameters": {
-        "person": "YOUR_LINKEDIN_PERSON_URN",
-        "text": "={{ $('Prepare Publish Data').item.json.title + '\n\n' + $('Prepare Publish Data').item.json.description }}",
-        "shareMediaCategory": "VIDEO",
-        "additionalFields": {}
-      },
-      "id": "31a9a37e-cc2f-428e-b5bd-c277dbd4955d",
-      "name": "LinkedIn Post",
-      "type": "n8n-nodes-base.linkedIn",
-      "typeVersion": 1,
-      "position": [
-        33024,
-        4336
-      ],
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://upload.twitter.com/1.1/media/upload.json?media_category=TWEET_VIDEO",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "twitterOAuth1Api",
-        "sendBody": true,
-        "contentType": "multipart-form-data",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "parameterType": "formBinaryData",
-              "name": "media",
-              "inputDataFieldName": "data"
-            }
-          ]
-        },
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "json"
-            }
-          }
-        }
-      },
-      "id": "edf9d60b-b629-4bde-94e0-e6217b894316",
-      "name": "X Upload",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        33024,
-        4496
-      ],
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "text": "={{ $('Prepare Publish Data').item.json.title.substring(0, 250) }}",
-        "additionalFields": {
-          "attachments": "={{ $json.media_id_string }}"
-        }
-      },
-      "id": "680a2054-14dd-42f9-8ba3-14061f81ace5",
-      "name": "X Post",
-      "type": "n8n-nodes-base.twitter",
-      "typeVersion": 2,
-      "position": [
-        33264,
-        4496
-      ],
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
         "httpRequestMethod": "POST",
         "graphApiVersion": "v23.0",
         "node": "YOUR_FACEBOOK_PAGE_ID",
@@ -1141,7 +952,7 @@
     {
       "parameters": {
         "mode": "chooseBranch",
-        "numberInputs": 6
+        "numberInputs": 3
       },
       "id": "1e758205-5321-441e-a3e8-07aae58b51b6",
       "name": "Merge Results",
@@ -1469,11 +1280,6 @@
       "main": [
         [
           {
-            "node": "TikTok?",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Instagram?",
             "type": "main",
             "index": 0
@@ -1484,28 +1290,7 @@
             "index": 0
           },
           {
-            "node": "LinkedIn?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "X/Twitter?",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Facebook?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "TikTok?": {
-      "main": [
-        [
-          {
-            "node": "TikTok Upload",
             "type": "main",
             "index": 0
           }
@@ -1534,28 +1319,6 @@
         ]
       ]
     },
-    "LinkedIn?": {
-      "main": [
-        [
-          {
-            "node": "LinkedIn Post",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "X/Twitter?": {
-      "main": [
-        [
-          {
-            "node": "X Upload",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Facebook?": {
       "main": [
         [
@@ -1563,17 +1326,6 @@
             "node": "Facebook Post",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "TikTok Upload": {
-      "main": [
-        [
-          {
-            "node": "Merge Results",
-            "type": "main",
-            "index": 1
           }
         ]
       ]
@@ -1617,40 +1369,7 @@
           {
             "node": "Merge Results",
             "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "LinkedIn Post": {
-      "main": [
-        [
-          {
-            "node": "Merge Results",
-            "type": "main",
-            "index": 3
-          }
-        ]
-      ]
-    },
-    "X Upload": {
-      "main": [
-        [
-          {
-            "node": "X Post",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "X Post": {
-      "main": [
-        [
-          {
-            "node": "Merge Results",
-            "type": "main",
-            "index": 4
+            "index": 1
           }
         ]
       ]
@@ -1661,7 +1380,7 @@
           {
             "node": "Merge Results",
             "type": "main",
-            "index": 5
+            "index": 2
           }
         ]
       ]
