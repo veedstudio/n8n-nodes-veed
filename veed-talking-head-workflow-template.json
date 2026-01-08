@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to Instagram, YouTube, Facebook\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
+        "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to TikTok, Instagram, YouTube, LinkedIn, X, Facebook\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
         "height": 1424,
         "width": 400,
         "color": 5
@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: instagram,youtube,facebook\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"new\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Document nad Sheet IDs (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID\n- Configure OAuth2 credentials for each platform",
+        "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: tiktok,instagram,youtube,linkedin,x,facebook\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"new\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Document nad Sheet IDs (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID  \n- **LinkedIn**: Set YOUR_LINKEDIN_PERSON_URN\n- Configure OAuth2 credentials for each platform",
         "height": 1424,
         "width": 440,
         "color": 4
@@ -67,7 +67,7 @@
     },
     {
       "parameters": {
-        "content": "## 3. VEED Video Generation\n\nUsing **VEED Fabric 1.0** model via Fal.ai\n\n**Requirements:**\n- Front-facing portrait photo (URL)\n- Audio file (MP3 from Google Drive)\n\n**Options:**\n- Resolution: 480p (faster) or 720p (better)\n- Aspect Ratio: 9:16 (Reels), 16:9 (YouTube), 1:1 (Feed)\n\n**Processing Time:** 5-15 minutes depending on video length",
+        "content": "## 3. VEED Video Generation\n\nUsing **VEED Fabric 1.0** model via Fal.ai\n\n**Requirements:**\n- Front-facing portrait photo (URL)\n- Audio file (MP3 from Google Drive)\n\n**Options:**\n- Resolution: 480p (faster) or 720p (better)\n- Aspect Ratio: 9:16 (TikTok/Reels), 16:9 (YouTube), 1:1 (Feed)\n\n**Processing Time:** 5-15 minutes depending on video length\n\n**Error Handling:**\nIf VEED generation fails:\n- Status updated to \"error\" in Google Sheet\n- Error notification email sent with details",
         "height": 1420,
         "width": 472,
         "color": 6
@@ -99,7 +99,7 @@
     },
     {
       "parameters": {
-        "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**Instagram** - Reels API (requires Business Account)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**Facebook** - Posts to Page (not personal profile)\n\n*All errors are captured - workflow continues if one platform fails*",
+        "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**TikTok** - Content Posting API v2 (URL pull)\n**Instagram** - Reels API (requires Business Account)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**LinkedIn** - Post as Person or Organization\n**X/Twitter** - OAuth1 for upload + OAuth2 for posting (max 140s)\n**Facebook** - Posts to Page (not personal profile)\n\n**Loop-based publishing:** Only selected platforms are published to. Each platform upload is followed by a Format node that standardizes the response (platform, success, postId, postUrl, error) for consistent result aggregation.",
         "height": 1412,
         "width": 1472
       },
@@ -504,18 +504,114 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "check-veed-error",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "check-video-missing",
+              "leftValue": "={{ $json.video?.url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "veed-error-check-node-id",
+      "name": "VEED Error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        31536,
+        4288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0"
+        },
+        "columns": {
+          "value": {
+            "row_number": "={{ $('Prepare Video Parameters').item.json.rowNumber }}",
+            "STATUS": "error"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {}
+      },
+      "id": "update-sheet-error-node-id",
+      "name": "Update Sheet - Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        31776,
+        4096
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_NOTIFICATION_EMAIL@example.com",
+        "subject": "=[ERROR] Video Generation Failed: {{ $('Prepare Video Parameters').item.json.videoTitle }}",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: #dc3545;\">Video Generation Failed</h2>\n  \n  <div style=\"background: #f8d7da; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #f5c6cb;\">\n    <p><strong>Error:</strong></p>\n    <pre style=\"white-space: pre-wrap; font-family: monospace; font-size: 13px; color: #721c24;\">{{ $('VEED Generate Video').item.json.error || 'Video generation failed - no video URL returned' }}</pre>\n  </div>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Video Details:</strong></p>\n    <p><strong>Title:</strong> {{ $('Prepare Video Parameters').item.json.videoTitle }}</p>\n    <p><strong>Description:</strong> {{ $('Prepare Video Parameters').item.json.videoDescription }}</p>\n    <p><strong>Image URL:</strong> {{ $('Prepare Video Parameters').item.json.imageUrl }}</p>\n    <p><strong>Aspect Ratio:</strong> {{ $('Prepare Video Parameters').item.json.aspectRatio }}</p>\n    <p><strong>Resolution:</strong> {{ $('Prepare Video Parameters').item.json.resolution }}</p>\n    <p><strong>Row Number:</strong> {{ $('Prepare Video Parameters').item.json.rowNumber }}</p>\n  </div>\n  \n  <div style=\"background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #ffeeba;\">\n    <p style=\"margin: 0; color: #856404;\"><strong>Action Required:</strong> Please check the input data and try again. The row status has been updated to \"error\" in the Google Sheet.</p>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">Timestamp: {{ $now.toISO() }}</p>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "send-error-email-node-id",
+      "name": "Send Error Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        32016,
+        4096
+      ],
+      "webhookId": "veed-error-notification-webhook"
+    },
+    {
+      "parameters": {
         "assignments": {
           "assignments": [
             {
               "id": "email-body",
               "name": "emailBody",
-              "value": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: #333;\">New Video Ready for Approval</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Title:</strong> {{ $('Prepare Video Parameters').item.json.videoTitle }}</p>\n    <p><strong>Description:</strong> {{ $('Prepare Video Parameters').item.json.videoDescription }}</p>\n    <p><strong>Target Platforms:</strong> {{ $('Prepare Video Parameters').item.json.platforms }}</p>\n    <p><strong>Aspect Ratio:</strong> {{ $('Prepare Video Parameters').item.json.aspectRatio }}</p>\n    <p><strong>Resolution:</strong> {{ $('Prepare Video Parameters').item.json.resolution }}</p>\n  </div>\n  \n  <div style=\"margin: 20px 0; padding: 15px; background: #e8f4e8; border-radius: 8px;\">\n    <p><strong>Video Preview:</strong></p>\n    <a href=\"{{ $json.video.url }}\" style=\"color: #007bff; font-size: 16px;\">Click here to preview video</a>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">Generation took {{ Math.round($json.duration / 1000) }} seconds</p>\n  <p style=\"color: #666; font-size: 12px;\">Request ID: {{ $json.requestId }}</p>\n</body>\n</html>",
+              "value": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: #333;\">New Video Ready for Approval</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Title:</strong> {{ $('Prepare Video Parameters').item.json.videoTitle }}</p>\n    <p><strong>Description:</strong> {{ $('Prepare Video Parameters').item.json.videoDescription }}</p>\n    <p><strong>Target Platforms:</strong> {{ $('Prepare Video Parameters').item.json.platforms }}</p>\n    <p><strong>Aspect Ratio:</strong> {{ $('Prepare Video Parameters').item.json.aspectRatio }}</p>\n    <p><strong>Resolution:</strong> {{ $('Prepare Video Parameters').item.json.resolution }}</p>\n  </div>\n  \n  <div style=\"margin: 20px 0; padding: 15px; background: #e8f4e8; border-radius: 8px;\">\n    <p><strong>Video Preview:</strong></p>\n    <a href=\"{{ $('VEED Generate Video').item.json.video.url }}\" style=\"color: #007bff; font-size: 16px;\">Click here to preview video</a>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">Generation took {{ Math.round($('VEED Generate Video').item.json.duration / 1000) }} seconds</p>\n  <p style=\"color: #666; font-size: 12px;\">Request ID: {{ $('VEED Generate Video').item.json.requestId }}</p>\n</body>\n</html>",
               "type": "string"
             },
             {
               "id": "video-url",
               "name": "generatedVideoUrl",
-              "value": "={{ $json.video.url }}",
+              "value": "={{ $('VEED Generate Video').item.json.video.url }}",
               "type": "string"
             }
           ]
@@ -527,8 +623,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        31536,
-        4288
+        31776,
+        4480
       ]
     },
     {
@@ -683,7 +779,7 @@
             {
               "id": "prep-platforms",
               "name": "platformList",
-              "value": "={{ ($('Prepare Video Parameters').item.json.platforms || '').toLowerCase().split(',').map(p => p.trim()) }}",
+              "value": "={{ ($('Prepare Video Parameters').item.json.platforms || '').toLowerCase().split(',').map(p => p.trim()).map(p => p === 'twitter' ? 'x' : p) }}",
               "type": "array"
             }
           ]
@@ -722,107 +818,102 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "version": 2,
-            "caseSensitive": false,
-            "typeValidation": "loose"
-          },
-          "combinator": "and",
-          "conditions": [
-            {
-              "id": "if-platform-instagram-cond",
-              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('instagram') }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ]
-        },
-        "options": {}
+        "fieldToSplitOut": "platformList",
+        "include": "allOtherFields",
+        "options": {
+          "includeBinary": true
+        }
       },
-      "id": "3721fe19-787c-4cb0-8883-e82a4793aff7",
-      "name": "Instagram?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
+      "id": "split-out-platforms-id",
+      "name": "Split Out Platforms",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
       "position": [
-        32736,
-        3920
+        32704,
+        4272
       ]
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "version": 2,
-            "caseSensitive": false,
-            "typeValidation": "loose"
-          },
-          "combinator": "and",
-          "conditions": [
-            {
-              "id": "if-platform-youtube-cond",
-              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('youtube') }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ]
-        },
+        "batchSize": 1,
         "options": {}
       },
-      "id": "dff2384b-3c4d-419e-a37c-772d91d65d81",
-      "name": "YouTube?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
       "position": [
-        32736,
-        4208
+        32912,
+        4272
       ]
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "version": 2,
-            "caseSensitive": false,
-            "typeValidation": "loose"
-          },
-          "combinator": "and",
-          "conditions": [
+        "dataType": "string",
+        "value1": "={{ $json.platformList }}",
+        "rules": {
+          "rules": [
             {
-              "id": "if-platform-facebook-cond",
-              "leftValue": "={{ $('Prepare Publish Data').item.json.platformList.includes('facebook') }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
+              "value2": "instagram",
+              "output": 0
+            },
+            {
+              "value2": "tiktok",
+              "output": 1
+            },
+            {
+              "value2": "youtube",
+              "output": 2
+            },
+            {
+              "value2": "linkedin",
+              "output": 3
+            },
+            {
+              "value2": "x",
+              "output": 4
+            },
+            {
+              "value2": "facebook",
+              "output": 5
             }
           ]
-        },
-        "options": {}
+        }
       },
-      "id": "6e1a5049-9962-4ed3-9dfc-627bfa8b457c",
-      "name": "Facebook?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Platform Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
       "position": [
-        32736,
-        4640
+        33120,
+        4272
       ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://graph.facebook.com/v20.0/YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID/media",
+        "url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"post_info\": {\n    \"title\": {{ JSON.stringify($json.title.substring(0, 150)) }},\n    \"privacy_level\": \"PUBLIC_TO_EVERYONE\",\n    \"disable_duet\": false,\n    \"disable_comment\": false,\n    \"disable_stitch\": false\n  },\n  \"source_info\": {\n    \"source\": \"PULL_FROM_URL\",\n    \"video_url\": {{ JSON.stringify($json.videoUrl) }}\n  }\n}",
+        "options": {}
+      },
+      "id": "28c8b4db-58ab-436e-98d7-884e0f8b974a",
+      "name": "TikTok Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        33168,
+        4112
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v23.0/YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID/media",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "facebookGraphApi",
         "sendQuery": true,
@@ -834,11 +925,11 @@
             },
             {
               "name": "video_url",
-              "value": "={{ $('Prepare Publish Data').item.json.videoUrl }}"
+              "value": "={{ $json.videoUrl }}"
             },
             {
               "name": "caption",
-              "value": "={{ $('Prepare Publish Data').item.json.title + '\n\n' + $('Prepare Publish Data').item.json.description }}"
+              "value": "={{ $json.title + \"\\n\\n\" + $json.description }}"
             }
           ]
         },
@@ -849,7 +940,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        33024,
+        33168,
         3856
       ],
       "onError": "continueRegularOutput"
@@ -863,7 +954,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        33264,
+        33408,
         3856
       ],
       "webhookId": "instagram-processing-wait"
@@ -871,7 +962,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://graph.facebook.com/v20.0/YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID/media_publish",
+        "url": "=https://graph.facebook.com/v23.0/YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID/media_publish",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "facebookGraphApi",
         "sendQuery": true,
@@ -890,7 +981,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        33488,
+        33632,
         3856
       ],
       "onError": "continueRegularOutput"
@@ -899,10 +990,10 @@
       "parameters": {
         "resource": "video",
         "operation": "upload",
-        "title": "={{ $('Prepare Publish Data').item.json.title }}",
+        "title": "={{ $json.title }}",
         "categoryId": "22",
         "options": {
-          "description": "={{ $('Prepare Publish Data').item.json.description }}",
+          "description": "={{ $json.description }}",
           "privacyStatus": "public"
         }
       },
@@ -911,8 +1002,77 @@
       "type": "n8n-nodes-base.youTube",
       "typeVersion": 1,
       "position": [
-        33024,
-        4176
+        33168,
+        4272
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "person": "YOUR_LINKEDIN_PERSON_URN",
+        "text": "={{ $json.title + '\n\n' + $json.description }}",
+        "shareMediaCategory": "VIDEO",
+        "additionalFields": {}
+      },
+      "id": "31a9a37e-cc2f-428e-b5bd-c277dbd4955d",
+      "name": "LinkedIn Post",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        33168,
+        4432
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://upload.twitter.com/1.1/media/upload.json?media_category=TWEET_VIDEO",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth1Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "media",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "edf9d60b-b629-4bde-94e0-e6217b894316",
+      "name": "X Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        33168,
+        4592
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.title.substring(0, 250) }}",
+        "additionalFields": {
+          "attachments": "={{ $json.media_id_string }}"
+        }
+      },
+      "id": "680a2054-14dd-42f9-8ba3-14061f81ace5",
+      "name": "X Post",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        33408,
+        4592
       ],
       "onError": "continueRegularOutput"
     },
@@ -929,11 +1089,11 @@
             "parameter": [
               {
                 "name": "description",
-                "value": "={{ $('Prepare Publish Data').item.json.title + '\n\n' + $('Prepare Publish Data').item.json.description }}"
+                "value": "={{ $json.title + \"\\n\\n\" + $json.description }}"
               },
               {
                 "name": "title",
-                "value": "={{ $('Prepare Publish Data').item.json.title }}"
+                "value": "={{ $json.title }}"
               }
             ]
           }
@@ -944,38 +1104,376 @@
       "type": "n8n-nodes-base.facebookGraphApi",
       "typeVersion": 1,
       "position": [
-        33024,
-        4656
+        33168,
+        4752
       ],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "mode": "chooseBranch",
-        "numberInputs": 3
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-tiktok-platform",
+              "name": "platform",
+              "value": "tiktok",
+              "type": "string"
+            },
+            {
+              "id": "format-tiktok-success",
+              "name": "success",
+              "value": "={{ !!$json.data?.publish_id }}",
+              "type": "boolean"
+            },
+            {
+              "id": "format-tiktok-postid",
+              "name": "postId",
+              "value": "={{ $json.data?.publish_id || null }}",
+              "type": "string"
+            },
+            {
+              "id": "format-tiktok-posturl",
+              "name": "postUrl",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "format-tiktok-error",
+              "name": "error",
+              "value": "={{ $json.error?.message || ($json.data?.publish_id ? '' : 'Upload failed') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
       },
-      "id": "1e758205-5321-441e-a3e8-07aae58b51b6",
-      "name": "Merge Results",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3,
+      "id": "format-tiktok-result-node-id",
+      "name": "Format TikTok Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
-        33840,
-        4256
+        33408,
+        4112
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-instagram-platform",
+              "name": "platform",
+              "value": "instagram",
+              "type": "string"
+            },
+            {
+              "id": "format-instagram-success",
+              "name": "success",
+              "value": "={{ !!$json.id && !$json.error }}",
+              "type": "boolean"
+            },
+            {
+              "id": "format-instagram-postid",
+              "name": "postId",
+              "value": "={{ $json.id || null }}",
+              "type": "string"
+            },
+            {
+              "id": "format-instagram-posturl",
+              "name": "postUrl",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "format-instagram-error",
+              "name": "error",
+              "value": "={{ $json.error?.message || ($json.id ? '' : 'Upload failed') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-instagram-result-node-id",
+      "name": "Format Instagram Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        33872,
+        3856
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-youtube-platform",
+              "name": "platform",
+              "value": "youtube",
+              "type": "string"
+            },
+            {
+              "id": "format-youtube-success",
+              "name": "success",
+              "value": "={{ !!$json.uploadId }}",
+              "type": "boolean"
+            },
+            {
+              "id": "format-youtube-postid",
+              "name": "postId",
+              "value": "={{ $json.uploadId || null }}",
+              "type": "string"
+            },
+            {
+              "id": "format-youtube-posturl",
+              "name": "postUrl",
+              "value": "={{ $json.uploadId ? 'https://youtube.com/watch?v=' + $json.uploadId : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "format-youtube-error",
+              "name": "error",
+              "value": "={{ $json.error?.message || ($json.uploadId ? '' : 'Upload failed') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-youtube-result-node-id",
+      "name": "Format YouTube Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        33408,
+        4272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-linkedin-platform",
+              "name": "platform",
+              "value": "linkedin",
+              "type": "string"
+            },
+            {
+              "id": "format-linkedin-success",
+              "name": "success",
+              "value": "={{ !!$json.id }}",
+              "type": "boolean"
+            },
+            {
+              "id": "format-linkedin-postid",
+              "name": "postId",
+              "value": "={{ $json.id || null }}",
+              "type": "string"
+            },
+            {
+              "id": "format-linkedin-posturl",
+              "name": "postUrl",
+              "value": "={{ $json.id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "format-linkedin-error",
+              "name": "error",
+              "value": "={{ $json.error?.message || ($json.id ? '' : 'Upload failed') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-linkedin-result-node-id",
+      "name": "Format LinkedIn Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        33408,
+        4432
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-x-platform",
+              "name": "platform",
+              "value": "x",
+              "type": "string"
+            },
+            {
+              "id": "format-x-success",
+              "name": "success",
+              "value": "={{ !!$json.id_str }}",
+              "type": "boolean"
+            },
+            {
+              "id": "format-x-postid",
+              "name": "postId",
+              "value": "={{ $json.id_str || null }}",
+              "type": "string"
+            },
+            {
+              "id": "format-x-posturl",
+              "name": "postUrl",
+              "value": "={{ $json.id_str ? 'https://twitter.com/i/web/status/' + $json.id_str : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "format-x-error",
+              "name": "error",
+              "value": "={{ $json.errors?[0]?.message || ($json.id_str ? '' : 'Upload failed') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-x-result-node-id",
+      "name": "Format X Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        33648,
+        4592
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-facebook-platform",
+              "name": "platform",
+              "value": "facebook",
+              "type": "string"
+            },
+            {
+              "id": "format-facebook-success",
+              "name": "success",
+              "value": "={{ !!$json.id && !$json.error }}",
+              "type": "boolean"
+            },
+            {
+              "id": "format-facebook-postid",
+              "name": "postId",
+              "value": "={{ $json.id || null }}",
+              "type": "string"
+            },
+            {
+              "id": "format-facebook-posturl",
+              "name": "postUrl",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "format-facebook-error",
+              "name": "error",
+              "value": "={{ $json.error?.message || ($json.id ? '' : 'Upload failed') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-facebook-result-node-id",
+      "name": "Format Facebook Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        33408,
+        4752
       ]
     },
     {
       "parameters": {
         "aggregate": "aggregateAllItemData",
-        "destinationFieldName": "publishingResults",
         "options": {}
       },
-      "id": "d9c2b206-09fc-40f1-a885-f11456301709",
-      "name": "Aggregate Results",
+      "id": "aggregate-results-id",
+      "name": "Aggregate Platform Results",
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        34080,
-        4336
+        33872,
+        4200
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "result-status",
+              "name": "status",
+              "value": "={{ $json.data.length === 0 ? 'approved-no-platforms' : ($json.data.filter(r => r.success).length === $json.data.length ? 'published' : ($json.data.filter(r => r.success).length === 0 ? 'failed' : 'partial')) }}",
+              "type": "string"
+            },
+            {
+              "id": "result-successful",
+              "name": "successful",
+              "value": "={{ $json.data.filter(r => r.success).length }}",
+              "type": "number"
+            },
+            {
+              "id": "result-total",
+              "name": "total",
+              "value": "={{ $json.data.length }}",
+              "type": "number"
+            },
+            {
+              "id": "result-summary",
+              "name": "summary",
+              "value": "={{ $json.data.length === 0 ? 'No platforms selected' : 'Published to ' + $json.data.filter(r => r.success).length + ' of ' + $json.data.length + ' platform(s)' }}",
+              "type": "string"
+            },
+            {
+              "id": "result-detailed",
+              "name": "detailedResults",
+              "value": "={{ $json.data.map(r => (r.success ? '✅' : '❌') + ' ' + r.platform.toUpperCase() + ': ' + (r.success ? (r.postUrl || 'Published successfully') : (r.error || 'Failed'))).join(\"\\n\") }}",
+              "type": "string"
+            },
+            {
+              "id": "result-rownum",
+              "name": "rowNumber",
+              "value": "={{ $('Prepare Video Parameters').item.json.rowNumber }}",
+              "type": "number"
+            },
+            {
+              "id": "result-videotitle",
+              "name": "videoTitle",
+              "value": "={{ $('Prepare Video Parameters').item.json.videoTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "result-platforms",
+              "name": "platforms",
+              "value": "={{ $('Prepare Video Parameters').item.json.platforms }}",
+              "type": "string"
+            },
+            {
+              "id": "result-videourl",
+              "name": "videoUrl",
+              "value": "={{ $('Prepare Publish Data').item.json.videoUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "name": "Format Results",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        33872,
+        4272
       ]
     },
     {
@@ -993,11 +1491,11 @@
         },
         "columns": {
           "value": {
-            "row_number": "={{ $('Prepare Video Parameters').item.json.rowNumber }}",
-            "STATUS": "={{ $json.publishingResults.length === 0 ? 'pending' : 'published' }}",
-            "VIDEO_URL": "={{ $('Format Email').item.json.generatedVideoUrl }}",
-            "PUBLISHED_AT": "={{ $json.publishingResults.length === 0 ? '' : $now.toISO() }}",
-            "PUBLISHING_RESULTS": "={{ $json.publishingResults.length === 0 ? 'No platforms selected' : 'Published to ' + $json.publishingResults.length + ' platform(s)' }}"
+            "row_number": "={{ $json.rowNumber }}",
+            "STATUS": "={{ $json.status }}",
+            "VIDEO_URL": "={{ $json.videoUrl }}",
+            "PUBLISHED_AT": "={{ $json.total === 0 ? '' : $now.toISO() }}",
+            "PUBLISHING_RESULTS": "={{ $json.summary }}"
           },
           "schema": [],
           "mappingMode": "defineBelow",
@@ -1012,16 +1510,16 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        34320,
-        4336
+        34112,
+        4272
       ],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "sendTo": "YOUR_NOTIFICATION_EMAIL@example.com",
-        "subject": "={{ $json.publishingResults.length === 0 ? '[No Platforms]' : '[Published]' }} Video: {{ $('Prepare Video Parameters').item.json.videoTitle }}",
-        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: {{ $json.publishingResults.length > 0 ? '#28a745' : '#ffc107' }};\">{{ $json.publishingResults.length === 0 ? 'No Platforms Selected' : 'Video Publishing Complete' }}</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Title:</strong> {{ $('Prepare Video Parameters').item.json.videoTitle }}</p>\n    <p><strong>Requested Platforms:</strong> {{ $('Prepare Video Parameters').item.json.platforms || 'None specified' }}</p>\n    <p><strong>Result:</strong> {{ $json.publishingResults.length === 0 ? 'No platforms selected for publishing' : 'Published to ' + $json.publishingResults.length + ' platform(s)' }}</p>\n  </div>\n  \n  <div style=\"margin: 20px 0;\">\n    <p><a href=\"{{ $('Format Email').item.json.generatedVideoUrl }}\" style=\"color: #007bff;\">View Generated Video</a></p>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">{{ $json.publishingResults.length === 0 ? 'Video approved but no platforms were selected for publishing.' : 'Published at: ' + $now.toISO() }}</p>\n</body>\n</html>",
+        "subject": "={{ $('Format Results').item.json.total === 0 ? '[No Platforms]' : ($('Format Results').item.json.successful === $('Format Results').item.json.total ? '[Published]' : '[Partial]') }} Video: {{ $('Format Results').item.json.videoTitle }}",
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: {{ $('Format Results').item.json.total === 0 ? '#ffc107' : ($('Format Results').item.json.successful > 0 ? '#28a745' : '#dc3545') }};\">{{ $('Format Results').item.json.summary }}</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Title:</strong> {{ $('Format Results').item.json.videoTitle }}</p>\n    <p><strong>Requested Platforms:</strong> {{ $('Format Results').item.json.platforms || 'None specified' }}</p>\n    <p><strong>Status:</strong> {{ $('Format Results').item.json.status }}</p>\n  </div>\n  \n  <div style=\"background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Publishing Details:</strong></p>\n    <pre style=\"white-space: pre-wrap; font-family: monospace; font-size: 13px;\">{{ $('Format Results').item.json.detailedResults || 'No publishing attempts' }}</pre>\n  </div>\n  \n  <div style=\"margin: 20px 0;\">\n    <p><a href=\"{{ $('Format Results').item.json.videoUrl }}\" style=\"color: #007bff;\">View Generated Video</a></p>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">{{ $('Format Results').item.json.total === 0 ? 'Video approved but no platforms were selected for publishing.' : ('Published at: ' + $now.toISO()) }}</p>\n</body>\n</html>",
         "options": {}
       },
       "id": "254ff498-bb32-452a-8d90-aa22d62ea2ea",
@@ -1029,14 +1527,14 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        34560,
-        4336
+        34352,
+        4272
       ],
       "webhookId": "68e01974-4dd3-4d4a-a7af-99d6863cc044"
     },
     {
       "parameters": {
-        "content": "## 6. Status Update & Report\n\nAfter publishing, the workflow:\n1. Updates Google Sheet with video URL and status\n2. Sends email report with publishing results\n\n**Status Values:**\n- `new` - Ready to be picked up by n8n\n- `processing` - n8n is working on it\n- `published` - Successfully published\n- `rejected` - User rejected the video",
+        "content": "## 6. Status Update & Report\n\nAfter publishing, the workflow:\n1. Aggregates results from all selected platforms\n2. Updates Google Sheet with video URL and status\n3. Sends detailed email report with per-platform results\n\n**Status Values:**\n- `new` - Ready to be picked up by n8n\n- `processing` - n8n is working on it\n- `error` - VEED video generation failed (details in email notification)\n- `published` - Successfully published to all platforms\n- `partial` - Some platforms succeeded, some failed\n- `failed` - All platforms failed\n- `approved-no-platforms` - Video approved but no platforms selected\n- `rejected` - User rejected the video",
         "height": 1412,
         "width": 1104,
         "color": 5
@@ -1207,7 +1705,36 @@
       "main": [
         [
           {
+            "node": "VEED Error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VEED Error?": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet - Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "Format Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Sheet - Error": {
+      "main": [
+        [
+          {
+            "node": "Send Error Email",
             "type": "main",
             "index": 0
           }
@@ -1280,24 +1807,54 @@
       "main": [
         [
           {
-            "node": "Instagram?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "YouTube?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Facebook?",
+            "node": "Split Out Platforms",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Instagram?": {
+    "Split Out Platforms": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Platform Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Platform Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Platform Results": {
+      "main": [
+        [
+          {
+            "node": "Format Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Platform Router": {
       "main": [
         [
           {
@@ -1305,25 +1862,60 @@
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "YouTube?": {
-      "main": [
+        ],
+        [
+          {
+            "node": "TikTok Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "YouTube Upload",
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Facebook?": {
-      "main": [
+        ],
+        [
+          {
+            "node": "LinkedIn Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "X Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Facebook Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TikTok Upload": {
+      "main": [
+        [
+          {
+            "node": "Format TikTok Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format TikTok Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -1356,7 +1948,18 @@
       "main": [
         [
           {
-            "node": "Merge Results",
+            "node": "Format Instagram Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Instagram Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -1367,9 +1970,75 @@
       "main": [
         [
           {
-            "node": "Merge Results",
+            "node": "Format YouTube Result",
             "type": "main",
-            "index": 1
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format YouTube Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Post": {
+      "main": [
+        [
+          {
+            "node": "Format LinkedIn Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format LinkedIn Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Upload": {
+      "main": [
+        [
+          {
+            "node": "X Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Post": {
+      "main": [
+        [
+          {
+            "node": "Format X Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format X Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -1378,25 +2047,25 @@
       "main": [
         [
           {
-            "node": "Merge Results",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "Merge Results": {
-      "main": [
-        [
-          {
-            "node": "Aggregate Results",
+            "node": "Format Facebook Result",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Aggregate Results": {
+    "Format Facebook Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Results": {
       "main": [
         [
           {
