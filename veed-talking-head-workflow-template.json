@@ -4,123 +4,123 @@
     {
       "parameters": {
         "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to Instagram, YouTube, Facebook, Telegram, Threads\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n- Telegram Bot Token (for Telegram publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
-        "height": 1424,
+        "height": 1808,
         "width": 400,
         "color": 5
       },
-      "id": "b12652dc-bb12-431a-9639-59450112515e",
+      "id": "dda1920e-1496-47f2-8117-531e1287cdb4",
       "name": "Sticky Note - Overview",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        27744,
-        3552
+        25968,
+        -2432
       ]
     },
     {
       "parameters": {
         "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: instagram,youtube,facebook,telegram,threads\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"new\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n5. **Telegram Bot** - Create bot via @BotFather and get token\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Document and Sheet IDs (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID, configure Facebook Graph API credentials\n- **YouTube**: Configure Google OAuth2 credentials for YouTube API\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID, configure Facebook Graph API credentials\n- **Telegram**: Set YOUR_TELEGRAM_CHAT_ID (for public group/channel), configure Telegram Bot credentials\n- **Threads**: Set YOUR_THREADS_USER_ID, configure HTTP Query Auth credentials (Name: access_token, Value: your Threads API token)",
-        "height": 1424,
+        "height": 1808,
         "width": 440,
         "color": 4
       },
-      "id": "3bc8f791-8c01-41e6-8dc3-a2dc455b5b94",
+      "id": "6c9be407-48fb-447a-b000-f573d31bdfc2",
       "name": "Sticky Note - Setup",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        28160,
-        3552
+        26384,
+        -2432
       ]
     },
     {
       "parameters": {
         "content": "## 1. Trigger & Input\n\nWorkflow triggers either:\n- **Manual**: Click \"Test workflow\"\n- **Scheduled**: Every 15 minutes\n\nFetches rows from Google Sheets where `STATUS = new`, then immediately marks them as `processing` to prevent duplicates.",
-        "height": 1432,
+        "height": 1816,
         "width": 1176,
         "color": 7
       },
-      "id": "97e696f8-3886-497d-9fc7-5468afc8c2e9",
+      "id": "3d8d7d44-f378-4bf8-847f-eee9cc1b4be3",
       "name": "Sticky Note - Trigger",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        28608,
-        3552
+        26832,
+        -2432
       ]
     },
     {
       "parameters": {
         "content": "## 2. Text-to-Speech Generation\n\nChoose TTS provider in your Google Sheet:\n\n**OpenAI TTS** (default)\n- Model: tts-1-hd\n- Voices: alloy, echo, fable, nova, onyx, shimmer\n\n**ElevenLabs**\n- Model: eleven_multilingual_v2\n- Use voice ID from your ElevenLabs dashboard\n\nAudio is uploaded to Google Drive and made publicly accessible for VEED.",
-        "height": 1424,
+        "height": 1808,
         "width": 1192,
         "color": 3
       },
-      "id": "7d1813c2-d6a5-4b25-baed-2362e4ff5600",
+      "id": "9f9b0bf7-e1b9-437a-b21a-2d74c79ff095",
       "name": "Sticky Note - TTS",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        29792,
-        3552
+        28016,
+        -2432
       ]
     },
     {
       "parameters": {
         "content": "## 3. VEED Video Generation\n\nUsing **VEED Fabric 1.0** model via Fal.ai\n\n**Requirements:**\n- Front-facing portrait photo (URL)\n- Audio file (MP3 from Google Drive)\n\n**Options:**\n- Resolution: 480p (faster) or 720p (better)\n- Aspect Ratio: 9:16 (TikTok/Reels), 16:9 (YouTube), 1:1 (Feed)\n\n**Processing Time:** 5-15 minutes depending on video length\n\n**Error Handling:**\nIf VEED generation fails:\n- Status updated to \"error\" in Google Sheet\n- Error notification email sent with details",
-        "height": 1420,
-        "width": 472,
+        "height": 1804,
+        "width": 712,
         "color": 6
       },
-      "id": "69b8f012-57cf-4ec5-86b0-d7daba610ffc",
+      "id": "02845211-d945-4167-bc00-d6aafe964ffd",
       "name": "Sticky Note - VEED",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        30992,
-        3552
+        29216,
+        -2432
       ]
     },
     {
       "parameters": {
         "content": "## 4. Approval Workflow\n\nAfter video generation, an email is sent with:\n- Video preview link\n- Video metadata (title, description, platforms)\n- **Approve** / **Reject** buttons\n\n**Timeout:** 24 hours\n**If no response:** Video remains pending\n**If rejected:** Status updated to \"rejected\" in Google Sheet",
-        "height": 1416,
-        "width": 728,
+        "height": 1800,
+        "width": 744,
         "color": 2
       },
-      "id": "082bd537-4e45-498f-98b9-084ddb1c3e5c",
+      "id": "b011f388-107f-4a5c-bbbb-b9ead14c8df6",
       "name": "Sticky Note - Approval",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        31472,
-        3552
+        29936,
+        -2432
       ]
     },
     {
       "parameters": {
         "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**Instagram** - Reels API (requires Business Account, uses Facebook Graph API)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**Facebook** - Posts to Page (not personal profile, uses Facebook Graph API)\n**Telegram** - Posts video to public groups/channels (uses Telegram Bot API)\n**Threads** - Posts to Threads (requires separate Threads API token via HTTP Query Auth)\n\n**Loop-based publishing:** Only selected platforms are published to. Each platform upload is followed by a Format node that standardizes the response (platform, success, postId, postUrl, error) for consistent result aggregation.\n\n**Credentials Note:** Instagram and Facebook share the same Facebook Graph API credentials. Threads requires a separate Threads API token configured as HTTP Query Auth. Telegram uses Telegram Bot credentials.\n\n**Note:** TikTok, LinkedIn, and X/Twitter are not supported due to n8n API limitations.",
-        "height": 1412,
-        "width": 1472
+        "height": 1812,
+        "width": 1520
       },
-      "id": "8b43eec7-e3d5-4992-bf02-31b0db541a61",
+      "id": "daacfc9f-6954-411c-aede-2645bfd64738",
       "name": "Sticky Note - Publishing",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        32208,
-        3552
+        30688,
+        -2432
       ]
     },
     {
       "parameters": {},
-      "id": "6cdaf7fa-facc-4951-ab56-aeb2c7870ef8",
+      "id": "26b6e201-a62e-4896-a511-f547a88f6cd1",
       "name": "When clicking 'Test workflow'",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        28656,
-        4192
+        26880,
+        -1968
       ]
     },
     {
@@ -134,13 +134,13 @@
           ]
         }
       },
-      "id": "ee06f7d2-c753-4c09-bae3-c2b68c42114c",
+      "id": "ab402ca3-7ef6-4b75-a0e3-f8572d48a7d2",
       "name": "Check for New Videos",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        28656,
-        4384
+        26880,
+        -1776
       ]
     },
     {
@@ -157,13 +157,13 @@
         },
         "options": {}
       },
-      "id": "2a804748-468e-4a4f-bd91-1141047f0136",
+      "id": "8628e5f2-e141-4d1f-86bf-42ace2d5271e",
       "name": "Get New Video Requests",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        28912,
-        4288
+        27136,
+        -1872
       ],
       "onError": "continueRegularOutput"
     },
@@ -190,13 +190,13 @@
         },
         "options": {}
       },
-      "id": "ee24177b-4587-4526-8c92-25f48dc788a5",
+      "id": "cbb7fb76-08a7-4794-8ee0-bb78cbb8f1dc",
       "name": "Filter Status New",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
       "position": [
-        29136,
-        4288
+        27360,
+        -1872
       ]
     },
     {
@@ -225,13 +225,13 @@
         },
         "options": {}
       },
-      "id": "d83f4aa9-5930-4afd-95ea-e643e3a4e742",
+      "id": "6c95f298-afe9-40b5-bab8-942f08bb0b7c",
       "name": "Mark as Processing",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        29376,
-        4288
+        27600,
+        -1872
       ],
       "onError": "continueRegularOutput"
     },
@@ -303,13 +303,13 @@
         },
         "options": {}
       },
-      "id": "30adcf57-96d6-4df4-a624-a4102790eb4b",
+      "id": "95952e59-9eab-4b5d-8158-630b944ad1dc",
       "name": "Prepare Video Parameters",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        29616,
-        4288
+        27840,
+        -1872
       ]
     },
     {
@@ -336,13 +336,13 @@
         },
         "options": {}
       },
-      "id": "21be04bc-650d-4c55-9415-e857e8f9e9c4",
+      "id": "47657c6c-0b83-4e95-a6bc-e26bea2e5186",
       "name": "TTS Provider?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        29856,
-        4288
+        28080,
+        -1872
       ]
     },
     {
@@ -362,13 +362,13 @@
           }
         }
       },
-      "id": "08307629-33db-4a06-a8e8-7e4f0bca41e9",
+      "id": "32f1f605-4362-4354-b355-da59279809b1",
       "name": "ElevenLabs TTS",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        30096,
-        4192
+        28320,
+        -1968
       ],
       "onError": "continueRegularOutput"
     },
@@ -379,13 +379,13 @@
         "voice": "={{ $json.voiceId }}",
         "options": {}
       },
-      "id": "5c36d6c5-0b94-4919-b0dd-877e4e7dffc5",
+      "id": "81498284-f046-46dd-9f62-6f7a6bb43a34",
       "name": "OpenAI TTS",
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        30096,
-        4384
+        28320,
+        -1776
       ],
       "onError": "continueRegularOutput"
     },
@@ -397,13 +397,13 @@
           "includeUnpaired": true
         }
       },
-      "id": "eac35ddc-7698-4ed4-ab23-0086c835879b",
+      "id": "f1202267-1eaa-4736-8947-03e9c2dab370",
       "name": "Merge TTS",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        30336,
-        4288
+        28560,
+        -1872
       ]
     },
     {
@@ -421,13 +421,13 @@
         },
         "options": {}
       },
-      "id": "44716d6d-082d-4867-b6a8-578bebf7f35f",
+      "id": "3ca8fd8d-d3f5-4774-b7b6-9f705d5ca135",
       "name": "Upload to Drive",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        30576,
-        4288
+        28800,
+        -1872
       ],
       "onError": "continueRegularOutput"
     },
@@ -447,13 +447,13 @@
         },
         "options": {}
       },
-      "id": "d9377a3d-dc06-4fb9-ab84-9c9e857e6d8f",
+      "id": "734ef531-9dd3-4ef6-b64e-b4049e160235",
       "name": "Make Public",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        30816,
-        4288
+        29040,
+        -1872
       ],
       "onError": "continueRegularOutput"
     },
@@ -473,13 +473,13 @@
           "dotNotation": false
         }
       },
-      "id": "88b378fd-9aff-4404-9653-dfafc3169f5a",
+      "id": "a5d529c2-c100-4bd1-ae3b-11aaf26f6117",
       "name": "Set Audio URL",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        31056,
-        4288
+        29280,
+        -1872
       ]
     },
     {
@@ -492,13 +492,13 @@
           "timeout": 15
         }
       },
-      "id": "1d154393-9395-47fa-b75e-f4cc1b332973",
+      "id": "1be050c2-5463-4745-8f42-ae06c99b6533",
       "name": "VEED Generate Video",
       "type": "n8n-nodes-veed.veed",
       "typeVersion": 1,
       "position": [
-        31296,
-        4288
+        29520,
+        -1872
       ],
       "onError": "continueRegularOutput"
     },
@@ -536,13 +536,13 @@
         },
         "options": {}
       },
-      "id": "veed-error-check-node-id",
+      "id": "99a3a7d4-bf56-40b2-946f-c615000a1bd9",
       "name": "VEED Error?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        31536,
-        4288
+        29760,
+        -1872
       ]
     },
     {
@@ -571,13 +571,13 @@
         },
         "options": {}
       },
-      "id": "update-sheet-error-node-id",
+      "id": "4e47fc87-c635-4bef-8e36-76b1cf61b50e",
       "name": "Update Sheet - Error",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        31776,
-        4096
+        29424,
+        -1616
       ],
       "onError": "continueRegularOutput"
     },
@@ -588,13 +588,13 @@
         "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: #dc3545;\">Video Generation Failed</h2>\n  \n  <div style=\"background: #f8d7da; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #f5c6cb;\">\n    <p><strong>Error:</strong></p>\n    <pre style=\"white-space: pre-wrap; font-family: monospace; font-size: 13px; color: #721c24;\">{{ $('VEED Generate Video').item.json.error || 'Video generation failed - no video URL returned' }}</pre>\n  </div>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Video Details:</strong></p>\n    <p><strong>Title:</strong> {{ $('Prepare Video Parameters').item.json.videoTitle }}</p>\n    <p><strong>Description:</strong> {{ $('Prepare Video Parameters').item.json.videoDescription }}</p>\n    <p><strong>Image URL:</strong> {{ $('Prepare Video Parameters').item.json.imageUrl }}</p>\n    <p><strong>Aspect Ratio:</strong> {{ $('Prepare Video Parameters').item.json.aspectRatio }}</p>\n    <p><strong>Resolution:</strong> {{ $('Prepare Video Parameters').item.json.resolution }}</p>\n    <p><strong>Row Number:</strong> {{ $('Prepare Video Parameters').item.json.rowNumber }}</p>\n  </div>\n  \n  <div style=\"background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #ffeeba;\">\n    <p style=\"margin: 0; color: #856404;\"><strong>Action Required:</strong> Please check the input data and try again. The row status has been updated to \"error\" in the Google Sheet.</p>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">Timestamp: {{ $now.toISO() }}</p>\n</body>\n</html>",
         "options": {}
       },
-      "id": "send-error-email-node-id",
+      "id": "92668b97-4055-4047-b799-66cb2ce455db",
       "name": "Send Error Email",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        32016,
-        4096
+        29648,
+        -1616
       ],
       "webhookId": "veed-error-notification-webhook"
     },
@@ -618,13 +618,13 @@
         },
         "options": {}
       },
-      "id": "27421a2f-2691-49a2-8660-f9becb8cd6a0",
+      "id": "ae4b9833-322a-40af-b4fe-bde6c7427de9",
       "name": "Format Email",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        31776,
-        4480
+        30000,
+        -1856
       ]
     },
     {
@@ -646,13 +646,13 @@
           }
         }
       },
-      "id": "23310970-cac6-456b-ade7-1637b87324b5",
+      "id": "3d1bd48b-aee2-4c77-8f9e-0142941ba347",
       "name": "Send Approval Email",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        31776,
-        4288
+        30240,
+        -1856
       ],
       "webhookId": "veed-approval-webhook"
     },
@@ -680,13 +680,13 @@
         },
         "options": {}
       },
-      "id": "ce76536f-2e26-4499-a38e-dd3035bdae8f",
+      "id": "0e0936d4-76a8-4fb0-a144-e5fb7b71b740",
       "name": "Approved?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        32016,
-        4288
+        30480,
+        -1856
       ]
     },
     {
@@ -709,13 +709,13 @@
         },
         "options": {}
       },
-      "id": "6aa93924-1812-4d28-8366-85dfe7b1f24e",
+      "id": "6e6c9b5f-f27b-40f1-bde7-7c3ff53ddd5b",
       "name": "Log Rejection",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        31664,
-        4528
+        30128,
+        -1600
       ]
     },
     {
@@ -744,13 +744,13 @@
         },
         "options": {}
       },
-      "id": "40f03386-fbce-46e7-bf78-10e39484a3bd",
+      "id": "450a260f-3353-4152-bf32-2f8bd8ad2bcf",
       "name": "Update Sheet - Rejected",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        31904,
-        4528
+        30368,
+        -1600
       ],
       "onError": "continueRegularOutput"
     },
@@ -786,13 +786,13 @@
         },
         "options": {}
       },
-      "id": "e6010e94-c83a-4bc9-a6d4-21a2ebe643d1",
+      "id": "36b942a5-af35-47f9-a720-a31a650936a0",
       "name": "Prepare Publish Data",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        32288,
-        4272
+        30768,
+        -1872
       ]
     },
     {
@@ -806,13 +806,13 @@
           }
         }
       },
-      "id": "6b37a709-2a83-4a1c-88f5-f50899c42312",
+      "id": "7eaab99a-0d9c-44d9-b256-6e166951768e",
       "name": "Download Video",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        32496,
-        4272
+        30976,
+        -1872
       ],
       "onError": "continueRegularOutput"
     },
@@ -824,27 +824,26 @@
           "includeBinary": true
         }
       },
-      "id": "split-out-platforms-id",
+      "id": "fea69b32-fdb7-47c3-bdb5-637ffeb291fc",
       "name": "Split Out Platforms",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        32704,
-        4272
+        31184,
+        -1872
       ]
     },
     {
       "parameters": {
-        "batchSize": 1,
         "options": {}
       },
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "id": "40e903b9-af4a-41df-b4fb-4d4a5ce89b07",
       "name": "Loop Over Items",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        32912,
-        4272
+        32032,
+        -1872
       ]
     },
     {
@@ -854,35 +853,30 @@
         "rules": {
           "rules": [
             {
-              "value2": "instagram",
-              "output": 0
+              "value2": "instagram"
             },
             {
-              "value2": "youtube",
-              "output": 1
+              "value2": "youtube"
             },
             {
-              "value2": "facebook",
-              "output": 2
+              "value2": "facebook"
             },
             {
-              "value2": "telegram",
-              "output": 3
+              "value2": "telegram"
             },
             {
-              "value2": "threads",
-              "output": 4
+              "value2": "threads"
             }
           ]
         }
       },
-      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "id": "bd026d24-8a8b-449e-8bc7-341badbf5888",
       "name": "Platform Router",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        33120,
-        4272
+        30784,
+        -1584
       ]
     },
     {
@@ -910,13 +904,13 @@
         },
         "options": {}
       },
-      "id": "8cb28725-c0c7-4b4c-bd74-204111771e0e",
+      "id": "75fd2344-0f01-412b-8f41-8a3328e58c79",
       "name": "Instagram Create",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        33168,
-        3856
+        30992,
+        -1600
       ],
       "onError": "continueRegularOutput"
     },
@@ -924,13 +918,13 @@
       "parameters": {
         "amount": 90
       },
-      "id": "73506469-315b-455a-9732-d3efc1c82b35",
+      "id": "36d80549-942f-4c9c-94e9-cd4016c2a0b0",
       "name": "Wait 90s",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        33408,
-        3856
+        31232,
+        -1600
       ],
       "webhookId": "instagram-processing-wait"
     },
@@ -951,13 +945,13 @@
         },
         "options": {}
       },
-      "id": "2a9ef5f8-b295-491a-a4ad-055d45eae1b7",
+      "id": "7bb35632-20a7-4655-9b16-a2abd412acf4",
       "name": "Instagram Publish",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        33632,
-        3856
+        31456,
+        -1600
       ],
       "onError": "continueRegularOutput"
     },
@@ -972,13 +966,13 @@
           "privacyStatus": "public"
         }
       },
-      "id": "5a094077-e061-47d2-b335-dbc18a933f65",
+      "id": "108844f6-7118-4d5a-910c-380ccd4be123",
       "name": "YouTube Upload",
       "type": "n8n-nodes-base.youTube",
       "typeVersion": 1,
       "position": [
-        33168,
-        4272
+        30992,
+        -1408
       ],
       "onError": "continueRegularOutput"
     },
@@ -1005,35 +999,34 @@
           }
         }
       },
-      "id": "7a568d2d-66e8-451f-a3e8-f55c140c74f3",
+      "id": "61957c95-df10-4b67-8e34-59d2f1a7b6c7",
       "name": "Facebook Post",
       "type": "n8n-nodes-base.facebookGraphApi",
       "typeVersion": 1,
       "position": [
-        33168,
-        4752
+        30992,
+        -1216
       ],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "resource": "message",
         "operation": "sendVideo",
         "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "binaryData": true,
-        "binaryPropertyName": "data",
         "additionalFields": {
           "caption": "={{ $json.title + \"\\n\\n\" + $json.description }}"
         }
       },
-      "id": "telegram-upload-node-id",
+      "id": "94d0b883-eccf-41a7-8819-402808554cdb",
       "name": "Telegram Post",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        33168,
-        4912
+        30992,
+        -1040
       ],
+      "webhookId": "8c17d23b-a600-48f0-a5fa-e45fe4540e6a",
       "onError": "continueRegularOutput"
     },
     {
@@ -1061,13 +1054,13 @@
         },
         "options": {}
       },
-      "id": "threads-create-node-id",
+      "id": "dcfc9dbb-e42a-4d5a-85a9-53f9c0ba09f9",
       "name": "Threads Create Container",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        33168,
-        5072
+        30992,
+        -864
       ],
       "onError": "continueRegularOutput"
     },
@@ -1075,13 +1068,13 @@
       "parameters": {
         "amount": 30
       },
-      "id": "threads-wait-node-id",
+      "id": "79dc6cdb-846c-4d54-a880-1b6301d2d363",
       "name": "Wait 30s Threads",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        33408,
-        5072
+        31232,
+        -864
       ],
       "webhookId": "threads-processing-wait"
     },
@@ -1102,13 +1095,13 @@
         },
         "options": {}
       },
-      "id": "threads-publish-node-id",
+      "id": "e3da1a54-2622-461f-8b45-4f1dfc64c80c",
       "name": "Threads Publish",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        33632,
-        5072
+        31456,
+        -864
       ],
       "onError": "continueRegularOutput"
     },
@@ -1150,13 +1143,13 @@
         },
         "options": {}
       },
-      "id": "format-threads-result-node-id",
+      "id": "3a759031-b56f-4efc-97b6-dfff60b6b270",
       "name": "Format Threads Result",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        33872,
-        5072
+        31696,
+        -864
       ]
     },
     {
@@ -1172,38 +1165,38 @@
             {
               "id": "format-telegram-success",
               "name": "success",
-              "value": "={{ !$json.error && !!$json.video }}",
+              "value": "={{ $json.ok === true && !!$json.result?.video }}",
               "type": "boolean"
             },
             {
               "id": "format-telegram-postid",
               "name": "postId",
-              "value": "={{ $json.id ? String($json.id) : null }}",
+              "value": "={{ $json.result?.message_id ? String($json.result.message_id) : null }}",
               "type": "string"
             },
             {
               "id": "format-telegram-posturl",
               "name": "postUrl",
-              "value": "={{ $json.username ? 'https://t.me/' + $json.username : '' }}",
+              "value": "={{ $json.result?.chat?.username ? 'https://t.me/' + $json.result.chat.username + '/' + $json.result.message_id : '' }}",
               "type": "string"
             },
             {
               "id": "format-telegram-error",
               "name": "error",
-              "value": "={{ $json.error || '' }}",
+              "value": "={{ $json.ok === false ? ($json.description || 'Upload failed') : '' }}",
               "type": "string"
             }
           ]
         },
         "options": {}
       },
-      "id": "format-telegram-result-node-id",
+      "id": "ccf8022d-b72f-41d3-8bc8-b506e7b72e9c",
       "name": "Format Telegram Result",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        33408,
-        4912
+        31696,
+        -1040
       ]
     },
     {
@@ -1244,13 +1237,13 @@
         },
         "options": {}
       },
-      "id": "format-instagram-result-node-id",
+      "id": "62ed9926-7860-4733-ad5a-1bbd6ee9f795",
       "name": "Format Instagram Result",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        33872,
-        3856
+        31696,
+        -1600
       ]
     },
     {
@@ -1291,13 +1284,13 @@
         },
         "options": {}
       },
-      "id": "format-youtube-result-node-id",
+      "id": "9bbccb8f-c300-4223-9862-b7431a029de2",
       "name": "Format YouTube Result",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        33408,
-        4272
+        31696,
+        -1408
       ]
     },
     {
@@ -1338,13 +1331,13 @@
         },
         "options": {}
       },
-      "id": "format-facebook-result-node-id",
+      "id": "39e9feca-2b7a-4552-8dae-e3cc255d4bf6",
       "name": "Format Facebook Result",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        33408,
-        4752
+        31696,
+        -1216
       ]
     },
     {
@@ -1352,13 +1345,13 @@
         "aggregate": "aggregateAllItemData",
         "options": {}
       },
-      "id": "aggregate-results-id",
+      "id": "b0d9bd27-8c4c-4128-a689-0c7607616670",
       "name": "Aggregate Platform Results",
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        33872,
-        4200
+        32304,
+        -1888
       ]
     },
     {
@@ -1423,13 +1416,13 @@
         },
         "options": {}
       },
-      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "id": "207165c7-471a-4053-bd47-17d0d0872504",
       "name": "Format Results",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        33872,
-        4272
+        32512,
+        -1888
       ]
     },
     {
@@ -1461,13 +1454,13 @@
         },
         "options": {}
       },
-      "id": "20a58e92-15bc-4370-a6f1-7eb2b23f4a67",
+      "id": "554637c6-3581-425a-973e-d9291a8c5844",
       "name": "Update Sheet - Published",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        34112,
-        4272
+        32752,
+        -1888
       ],
       "onError": "continueRegularOutput"
     },
@@ -1478,30 +1471,30 @@
         "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <h2 style=\"color: {{ $('Format Results').item.json.total === 0 ? '#ffc107' : ($('Format Results').item.json.successful > 0 ? '#28a745' : '#dc3545') }};\">{{ $('Format Results').item.json.summary }}</h2>\n  \n  <div style=\"background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Title:</strong> {{ $('Format Results').item.json.videoTitle }}</p>\n    <p><strong>Requested Platforms:</strong> {{ $('Format Results').item.json.platforms || 'None specified' }}</p>\n    <p><strong>Status:</strong> {{ $('Format Results').item.json.status }}</p>\n  </div>\n  \n  <div style=\"background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin: 20px 0;\">\n    <p><strong>Publishing Details:</strong></p>\n    <pre style=\"white-space: pre-wrap; font-family: monospace; font-size: 13px;\">{{ $('Format Results').item.json.detailedResults || 'No publishing attempts' }}</pre>\n  </div>\n  \n  <div style=\"margin: 20px 0;\">\n    <p><a href=\"{{ $('Format Results').item.json.videoUrl }}\" style=\"color: #007bff;\">View Generated Video</a></p>\n  </div>\n  \n  <p style=\"color: #666; font-size: 12px;\">{{ $('Format Results').item.json.total === 0 ? 'Video approved but no platforms were selected for publishing.' : ('Published at: ' + $now.toISO()) }}</p>\n</body>\n</html>",
         "options": {}
       },
-      "id": "254ff498-bb32-452a-8d90-aa22d62ea2ea",
+      "id": "8d877f71-5c5e-485f-b896-63849d701c27",
       "name": "Send Report Email",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        34352,
-        4272
+        32992,
+        -1888
       ],
       "webhookId": "68e01974-4dd3-4d4a-a7af-99d6863cc044"
     },
     {
       "parameters": {
         "content": "## 6. Status Update & Report\n\nAfter publishing, the workflow:\n1. Aggregates results from all selected platforms\n2. Updates Google Sheet with video URL and status\n3. Sends detailed email report with per-platform results\n\n**Status Values:**\n- `new` - Ready to be picked up by n8n\n- `processing` - n8n is working on it\n- `error` - VEED video generation failed (details in email notification)\n- `published` - Successfully published to all platforms\n- `partial` - Some platforms succeeded, some failed\n- `failed` - All platforms failed\n- `approved-no-platforms` - Video approved but no platforms selected\n- `rejected` - User rejected the video",
-        "height": 1412,
-        "width": 1104,
+        "height": 1812,
+        "width": 976,
         "color": 5
       },
-      "id": "16782ace-6242-4400-974e-a8d916e8b601",
+      "id": "caab131e-d4ad-4adc-b5b6-cea2cf8aa499",
       "name": "Sticky Note - Report",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        33696,
-        3552
+        32224,
+        -2432
       ]
     }
   ],
@@ -2028,13 +2021,15 @@
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": false
   },
-  "versionId": "",
+  "versionId": "6ce7d48d-5662-4334-898a-1fce06583ef3",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "dad5fcc32113ba8bb80eb1361380849427c50ebb586d233d41f3f7c26f32ab71"
   },
+  "id": "ZMRam7NSHo5ADanA",
   "tags": [
     {
       "updatedAt": "2025-12-18T10:21:22.017Z",
