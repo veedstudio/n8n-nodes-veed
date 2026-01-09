@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to Instagram, YouTube, Facebook, Telegram\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n- Telegram Bot Token (for Telegram publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
+        "content": "# VEED AI Talking Head Video Generator\n\nThis workflow generates AI avatar videos from images and text using **VEED Fabric 1.0**, with automated multi-platform publishing.\n\n## How It Works\n1. **Input**: Add video requests to a Google Sheet\n2. **TTS**: Generate speech using OpenAI or ElevenLabs\n3. **Video**: VEED creates a talking head video\n4. **Approval**: Email notification with approve/reject\n5. **Publish**: Auto-post to Instagram, YouTube, Facebook, Telegram, Threads\n\n## Requirements\n- Fal.ai API Key (for VEED)\n- Google OAuth (Sheets, Drive, Gmail)\n- TTS: OpenAI or ElevenLabs API Key\n- Social Media OAuth credentials (for publishing)\n- Telegram Bot Token (for Telegram publishing)\n\n## Quick Start\n1. Create Google Sheet with required columns\n2. Set up credentials in n8n\n3. Configure node placeholders (see Setup note)\n4. Activate workflow\n\n**Node:** n8n-nodes-veed\n**Author:** VEED.io",
         "height": 1424,
         "width": 400,
         "color": 5
@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: instagram,youtube,facebook,telegram\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"new\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n5. **Telegram Bot** - Create bot via @BotFather and get token\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Document and Sheet IDs (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID\n- **Telegram**: Set YOUR_TELEGRAM_CHAT_ID (for public group/channel)\n- Configure OAuth2 credentials for each platform",
+        "content": "## Setup Instructions\n\n### Step 1: Create Google Sheet\nCreate a new Google Sheet with these columns:\n- `AVATAR_IMAGE_URL` - Public URL to portrait image\n- `NARRATION_TEXT` - Text for the avatar to speak\n- `TTS_PROVIDER` - \"openai\" or \"elevenlabs\"\n- `VOICE_ID` - Voice ID (e.g., \"alloy\" for OpenAI)\n- `VIDEO_TITLE` - Title for the video\n- `VIDEO_DESCRIPTION` - Description text\n- `PLATFORMS` - Comma-separated: instagram,youtube,facebook,telegram,threads\n- `ASPECT_RATIO` - \"9:16\", \"16:9\", or \"1:1\"\n- `RESOLUTION` - \"480p\" or \"720p\"\n- `STATUS` - Set to \"new\"\n\n### Step 2: Configure Credentials\n1. **Fal.ai** - Get key at fal.ai/dashboard/keys\n2. **Google OAuth** - For Gmail, Drive, Sheets\n3. **OpenAI** - platform.openai.com/api-keys\n4. **ElevenLabs** - elevenlabs.io/app/settings/api-keys\n5. **Telegram Bot** - Create bot via @BotFather and get token\n\n### Step 3: Update Node Placeholders\nOpen each node and replace:\n- **Google Sheets nodes**: Set your Google Document and Sheet IDs (from URL: docs.google.com/spreadsheets/d/YOUR_ID/edit)\n- **Upload to Drive**: Set your Google Drive folder ID for audio files\n- **Send Approval Email**: Set your approval email address\n- **Send Report Email**: Set notification email address\n\n### Step 4: Social Media Setup (Optional)\nFor each platform you want to publish to:\n- **Instagram**: Set YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID, configure Facebook Graph API credentials\n- **YouTube**: Configure Google OAuth2 credentials for YouTube API\n- **Facebook**: Set YOUR_FACEBOOK_PAGE_ID, configure Facebook Graph API credentials\n- **Telegram**: Set YOUR_TELEGRAM_CHAT_ID (for public group/channel), configure Telegram Bot credentials\n- **Threads**: Set YOUR_THREADS_USER_ID, configure HTTP Query Auth credentials (Name: access_token, Value: your Threads API token)",
         "height": 1424,
         "width": 440,
         "color": 4
@@ -99,7 +99,7 @@
     },
     {
       "parameters": {
-        "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**Instagram** - Reels API (requires Business Account)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**Facebook** - Posts to Page (not personal profile)\n**Telegram** - Posts video to public groups/channels\n\n**Loop-based publishing:** Only selected platforms are published to. Each platform upload is followed by a Format node that standardizes the response (platform, success, postId, postUrl, error) for consistent result aggregation.\n\n**Note:** TikTok, LinkedIn, and X/Twitter are not supported due to n8n API limitations.",
+        "content": "## 5. Multi-Platform Publishing\n\nSupported platforms (configure in PLATFORMS column):\n\n**Instagram** - Reels API (requires Business Account, uses Facebook Graph API)\n**YouTube** - Auto-detects Shorts for <60s videos with 9:16\n**Facebook** - Posts to Page (not personal profile, uses Facebook Graph API)\n**Telegram** - Posts video to public groups/channels (uses Telegram Bot API)\n**Threads** - Posts to Threads (requires separate Threads API token via HTTP Query Auth)\n\n**Loop-based publishing:** Only selected platforms are published to. Each platform upload is followed by a Format node that standardizes the response (platform, success, postId, postUrl, error) for consistent result aggregation.\n\n**Credentials Note:** Instagram and Facebook share the same Facebook Graph API credentials. Threads requires a separate Threads API token configured as HTTP Query Auth. Telegram uses Telegram Bot credentials.\n\n**Note:** TikTok, LinkedIn, and X/Twitter are not supported due to n8n API limitations.",
         "height": 1412,
         "width": 1472
       },
@@ -868,6 +868,10 @@
             {
               "value2": "telegram",
               "output": 3
+            },
+            {
+              "value2": "threads",
+              "output": 4
             }
           ]
         }
@@ -1031,6 +1035,129 @@
         4912
       ],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.threads.net/v1.0/YOUR_THREADS_USER_ID/threads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "VIDEO"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $json.videoUrl }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.title + \"\\n\\n\" + $json.description }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "threads-create-node-id",
+      "name": "Threads Create Container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        33168,
+        5072
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "threads-wait-node-id",
+      "name": "Wait 30s Threads",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        33408,
+        5072
+      ],
+      "webhookId": "threads-processing-wait"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.threads.net/v1.0/YOUR_THREADS_USER_ID/threads_publish",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $('Threads Create Container').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "threads-publish-node-id",
+      "name": "Threads Publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        33632,
+        5072
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "format-threads-platform",
+              "name": "platform",
+              "value": "threads",
+              "type": "string"
+            },
+            {
+              "id": "format-threads-success",
+              "name": "success",
+              "value": "={{ !!$json.id && !$json.error }}",
+              "type": "boolean"
+            },
+            {
+              "id": "format-threads-postid",
+              "name": "postId",
+              "value": "={{ $json.id || null }}",
+              "type": "string"
+            },
+            {
+              "id": "format-threads-posturl",
+              "name": "postUrl",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "format-threads-error",
+              "name": "error",
+              "value": "={{ $json.error?.message || ($json.id ? '' : 'Upload failed') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-threads-result-node-id",
+      "name": "Format Threads Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        33872,
+        5072
+      ]
     },
     {
       "parameters": {
@@ -1712,6 +1839,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Threads Create Container",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
@@ -1815,6 +1949,50 @@
       ]
     },
     "Format Telegram Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads Create Container": {
+      "main": [
+        [
+          {
+            "node": "Wait 30s Threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30s Threads": {
+      "main": [
+        [
+          {
+            "node": "Threads Publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads Publish": {
+      "main": [
+        [
+          {
+            "node": "Format Threads Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Threads Result": {
       "main": [
         [
           {
