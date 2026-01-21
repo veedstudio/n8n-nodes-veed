@@ -1,4 +1,4 @@
-# AI Screen Recording Video Generator
+# Create AI Screencast Videos with VEED and Automated Slides
 
 ## Overview
 
@@ -267,7 +267,7 @@ The final video uses a picture-in-picture (PiP) layout:
 ## Setup Checklist
 
 ### Step 1: Import Workflow
-- [ ] Import `AI_Screen_Recording_Video_Generator_Template.json` into n8n
+- [ ] Import `create-ai-screencast-videos-with-veed-and-automated-slides.json` into n8n
 
 ### Step 2: Configure API Keys
 - [ ] Open the **⚙️ Workflow Configuration** node
@@ -374,6 +374,7 @@ This workflow can be exposed to Claude Desktop via n8n's Model Context Protocol 
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1 | Jan 2026 | Renamed workflow, improved documentation with section sticky notes, consolidated setup information |
 | 2.0 | Jan 2026 | Added dynamic slide count, background options, FAL Flux Pro for slides, improved PiP layout |
 | 1.0 | Jan 2026 | Initial release with fixed slide count, basic composition |
 
