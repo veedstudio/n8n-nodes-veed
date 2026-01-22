@@ -1,0 +1,783 @@
+{
+  "name": "Generate social videos with AI avatars using VEED and Claude",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "8f97f72b-aba0-45fc-b933-397bc86bb9ab",
+      "name": "When clicking 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -96,
+        -544
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"topic\": \"AI video creation tools\",\n  \"intention\": \"informative\",\n  \"brand_name\": \"YOUR_BRAND_NAME\",\n  \"target_audience\": \"content creators and marketers\",\n  \"trending_hashtags\": \"#AIvideo #ContentCreation #VideoMarketing #AItools #TikTokTips\",\n  \"num_videos\": 1,\n  \"anthropic_api_key\": \"YOUR_ANTHROPIC_API_KEY\",\n  \"openai_api_key\": \"YOUR_OPENAI_API_KEY\",\n  \"video_resolution\": \"720p\",\n  \"video_aspect_ratio\": \"9:16\",\n  \"custom_avatar_description\": \"\",\n  \"custom_script\": \"\"\n}",
+        "options": {}
+      },
+      "id": "322639e6-9eaa-4174-83f9-9a7967238455",
+      "name": "⚙️ Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        128,
+        -544
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $input.first().json;\nconst numVideos = config.num_videos || 1;\n\n// Generate array of video tasks with unique angles\nconst videoAngles = [\n  { angle: \"problem-solution\", hook_style: \"question\" },\n  { angle: \"myth-busting\", hook_style: \"controversial\" },\n  { angle: \"quick-tip\", hook_style: \"number\" },\n  { angle: \"before-after\", hook_style: \"transformation\" },\n  { angle: \"trend-commentary\", hook_style: \"news\" }\n];\n\nconst tasks = [];\nfor (let i = 0; i < numVideos; i++) {\n  tasks.push({\n    json: {\n      ...config,\n      video_index: i + 1,\n      content_angle: videoAngles[i % videoAngles.length].angle,\n      hook_style: videoAngles[i % videoAngles.length].hook_style\n    }\n  });\n}\n\nreturn tasks;"
+      },
+      "id": "eb603df1-a543-4fd6-8100-c068be554cae",
+      "name": "📋 Generate Video Tasks",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        368,
+        -544
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ae7a893a-4b86-4deb-adb3-a1add933b1e7",
+      "name": "🔄 Loop Through Videos",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        608,
+        -544
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $input.first().json;\n\n// Check if user provided custom inputs\nconst hasCustomAvatar = config.custom_avatar_description && config.custom_avatar_description.trim() !== '';\nconst hasCustomScript = config.custom_script && config.custom_script.trim() !== '';\n\n// Build the prompt for Claude\nconst intentionGuides = {\n  \"informative\": \"Focus on educating the viewer. Provide genuine value and actionable insights. Build trust through expertise.\",\n  \"lead_generation\": \"Create curiosity and desire. Include a soft call-to-action. Make viewers want to learn more about the tool/service.\",\n  \"disruption\": \"Challenge conventional thinking. Be bold and provocative. Make viewers stop scrolling and pay attention.\"\n};\n\nconst hookStyles = {\n  \"question\": \"Start with a thought-provoking question that challenges assumptions\",\n  \"controversial\": \"Start with a bold, slightly controversial statement that makes people want to hear more\",\n  \"number\": \"Start with a specific number or statistic that grabs attention\",\n  \"transformation\": \"Start by describing a transformation or before/after scenario\",\n  \"news\": \"Start with a 'breaking' or trending angle that feels timely\"\n};\n\n// Build dynamic prompt based on what's needed\nlet taskInstructions = '';\nlet responseFormat = '';\n\nif (!hasCustomAvatar && !hasCustomScript) {\n  // Generate both\n  taskInstructions = `### 1. IMAGE PROMPT (for AI avatar):\nCreate a detailed prompt for generating a photorealistic human avatar in PORTRAIT orientation. Consider:\n- Professional but approachable appearance\n- Age 25-40, appropriate for tech content\n- Gender: choose what fits the content best\n- Head and shoulders framing, looking at camera\n- Neutral or vibrant background (NOT white - use colors, gradients, or contextual settings)\n- Good lighting, high quality\n- Clothing that matches the content theme and target audience\n- IMPORTANT: Frame for vertical/portrait composition\n\n### 2. VIDEO SCRIPT (voiceover, 30-45 seconds max):\nCreate an engaging script that:\n- OPENS with a powerful hook using the specified hook style\n- Delivers value related to the topic\n- Maintains conversational, TikTok-native tone\n- Is optimized for text-to-speech (natural phrasing, no special characters)\n- Maximum 450 characters\n- Ends with engagement driver (question, CTA, or thought-provoker)\n- Subtly incorporates the brand if relevant (not salesy)\n\n### 3. CAPTION:\nWrite a TikTok caption (under 150 chars) + include the trending hashtags.`;\n  responseFormat = '{\"image_prompt\": \"detailed image prompt here\", \"audio_script\": \"video script here\", \"caption\": \"caption with hashtags here\", \"avatar_gender\": \"male or female\", \"content_theme\": \"2-3 word theme\"}';\n\n} else if (hasCustomAvatar && !hasCustomScript) {\n  // Only generate script (avatar provided)\n  taskInstructions = `### 1. VIDEO SCRIPT (voiceover, 30-45 seconds max):\nCreate an engaging script that:\n- OPENS with a powerful hook using the specified hook style\n- Delivers value related to the topic\n- Maintains conversational, TikTok-native tone\n- Is optimized for text-to-speech (natural phrasing, no special characters)\n- Maximum 450 characters\n- Ends with engagement driver (question, CTA, or thought-provoker)\n- Subtly incorporates the brand if relevant (not salesy)\n\n### 2. CAPTION:\nWrite a TikTok caption (under 150 chars) + include the trending hashtags.`;\n  responseFormat = '{\"audio_script\": \"video script here\", \"caption\": \"caption with hashtags here\", \"content_theme\": \"2-3 word theme\"}';\n\n} else if (!hasCustomAvatar && hasCustomScript) {\n  // Only generate avatar (script provided)\n  taskInstructions = `### 1. IMAGE PROMPT (for AI avatar):\nCreate a detailed prompt for generating a photorealistic human avatar in PORTRAIT orientation. Consider:\n- Professional but approachable appearance\n- Age 25-40, appropriate for tech content\n- Gender: choose what fits the content best\n- Head and shoulders framing, looking at camera\n- Neutral or vibrant background (NOT white - use colors, gradients, or contextual settings)\n- Good lighting, high quality\n- Clothing that matches the content theme and target audience\n- IMPORTANT: Frame for vertical/portrait composition\n\n### 2. CAPTION:\nWrite a TikTok caption (under 150 chars) + include the trending hashtags.`;\n  responseFormat = '{\"image_prompt\": \"detailed image prompt here\", \"caption\": \"caption with hashtags here\", \"avatar_gender\": \"male or female\", \"content_theme\": \"2-3 word theme\"}';\n\n} else {\n  // Both provided - only generate caption\n  taskInstructions = `### 1. CAPTION:\nWrite a TikTok caption (under 150 chars) + include the trending hashtags.`;\n  responseFormat = '{\"caption\": \"caption with hashtags here\", \"content_theme\": \"2-3 word theme\"}';\n}\n\nconst prompt = `You are an expert short-form video content strategist specializing in tech and AI content for TikTok and social media.\n\n## CONTENT BRIEF:\n- Topic: ${config.topic}\n- Brand/Tool: ${config.brand_name}\n- Target Audience: ${config.target_audience}\n- Content Intention: ${config.intention.toUpperCase()}\n- Content Angle: ${config.content_angle}\n- Trending Hashtags to incorporate: ${config.trending_hashtags}\n\n## INTENTION GUIDE:\n${intentionGuides[config.intention] || intentionGuides.informative}\n\n## HOOK STYLE:\n${hookStyles[config.hook_style] || hookStyles.question}\n\n## YOUR TASK:\nCreate content for a 30-45 second talking-head video in VERTICAL FORMAT (9:16 for TikTok/Reels). Generate:\n\n${taskInstructions}\n\nRespond ONLY with valid JSON in this exact format (no markdown, no code blocks):\n${responseFormat}`;\n\nreturn [{\n  json: {\n    ...config,\n    claude_prompt: prompt,\n    has_custom_avatar: hasCustomAvatar,\n    has_custom_script: hasCustomScript\n  }\n}];"
+      },
+      "id": "f5005c14-9208-4b25-9071-39715977acc3",
+      "name": "🧠 Build Claude Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        832,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $json.anthropic_api_key }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.claude_prompt) }}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "e51db1df-8fd0-4333-a3ec-bcfb04a29e64",
+      "name": "🤖 Claude: Generate Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1072,
+        -432
+      ],
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst claudeResponse = item.json;\nconst config = $('🧠 Build Claude Prompt').item.json;\n\n// Extract the text content from Claude's response\nlet responseText = '';\nif (claudeResponse.content && claudeResponse.content[0]) {\n  responseText = claudeResponse.content[0].text;\n}\n\n// Parse the JSON from Claude's response\nlet parsed = {};\ntry {\n  let cleanText = responseText.trim();\n  // Remove markdown code blocks if present\n  if (cleanText.startsWith('```json')) {\n    cleanText = cleanText.replace(/```json\\n?/, '').replace(/\\n?```$/, '');\n  } else if (cleanText.startsWith('```')) {\n    cleanText = cleanText.replace(/```\\n?/, '').replace(/\\n?```$/, '');\n  }\n  parsed = JSON.parse(cleanText.trim());\n} catch (e) {\n  // Fallback content\n  parsed = {\n    image_prompt: \"\",\n    audio_script: \"\",\n    caption: \"Check out this AI video! #AIvideo #ContentCreation #VideoMarketing\",\n    avatar_gender: \"female\",\n    content_theme: \"AI video\"\n  };\n}\n\n// Build the final image prompt\nlet finalImagePrompt = '';\nif (config.has_custom_avatar && config.custom_avatar_description) {\n  // Use custom avatar description and enhance it for image generation\n  finalImagePrompt = `Photorealistic portrait photo of ${config.custom_avatar_description}. Head and shoulders framing, looking directly at camera, natural expression, high quality, portrait orientation, vibrant or contextual background (not white), good lighting, 4K quality.`;\n} else if (parsed.image_prompt) {\n  finalImagePrompt = parsed.image_prompt;\n} else {\n  finalImagePrompt = \"Photorealistic portrait photo of a friendly content creator in their late 20s, casual stylish clothing, head and shoulders framing, looking directly at camera, confident smile, colorful gradient background, good lighting, portrait orientation, high quality\";\n}\n\n// Build the final script\nlet finalScript = '';\nif (config.has_custom_script && config.custom_script) {\n  finalScript = config.custom_script.trim();\n} else if (parsed.audio_script) {\n  finalScript = parsed.audio_script;\n} else {\n  finalScript = \"What if I told you that creating professional videos no longer requires expensive equipment or editing skills? AI video tools are completely changing the game for content creators. In just minutes, you can go from an idea to a polished video ready for social media. The question is: are you ready to level up your content?\";\n}\n\nreturn [{\n  json: {\n    topic: config.topic,\n    intention: config.intention,\n    brand_name: config.brand_name,\n    video_index: config.video_index,\n    script_image: finalImagePrompt,\n    script_audio: finalScript,\n    caption: parsed.caption || \"Check out this AI-generated video! #AIvideo #ContentCreation\",\n    avatar_gender: parsed.avatar_gender || \"female\",\n    content_theme: parsed.content_theme || \"AI video\",\n    openai_api_key: config.openai_api_key,\n    video_resolution: config.video_resolution,\n    video_aspect_ratio: config.video_aspect_ratio,\n    used_custom_avatar: config.has_custom_avatar,\n    used_custom_script: config.has_custom_script\n  }\n}];"
+      },
+      "id": "4f3f3213-9a7a-43d9-ac21-9734568a908b",
+      "name": "📋 Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1312,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-image-1\",\n  \"prompt\": {{ JSON.stringify($json.script_image) }},\n  \"n\": 1,\n  \"size\": \"1024x1536\",\n  \"quality\": \"high\"\n}",
+        "options": {}
+      },
+      "id": "96db80ae-a45b-4742-982b-0e341fc0cd27",
+      "name": "🎨 Generate Avatar (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1552,
+        -432
+      ],
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst imageResponse = item.json;\nconst previousData = $('📋 Parse Claude Response').item.json;\n\nlet imageBase64 = '';\n\n// gpt-image-1 returns b64_json by default\nif (imageResponse.data && imageResponse.data[0] && imageResponse.data[0].b64_json) {\n  imageBase64 = imageResponse.data[0].b64_json;\n}\n\nif (!imageBase64) {\n  throw new Error('No base64 image data received from OpenAI. Response: ' + JSON.stringify(imageResponse));\n}\n\nreturn [{\n  json: {\n    ...previousData\n  },\n  binary: {\n    image_data: {\n      data: imageBase64,\n      mimeType: 'image/png',\n      fileName: 'avatar.png'\n    }\n  }\n}];"
+      },
+      "id": "b1eab378-bfb7-408b-9431-e674a8faabe6",
+      "name": "📸 Extract Image Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1792,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tmpfiles.org/api/v1/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "image_data"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "07854bc7-cfdd-4d25-9a7d-d100ae14a700",
+      "name": "☁️ Upload Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2016,
+        -432
+      ],
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "jsCode": "const uploadResponse = $input.first().json;\nconst previousData = $('📸 Extract Image Data').item.json;\n\n// Convert tmpfiles URL to direct download URL\nconst publicImageUrl = uploadResponse.data.url.replace(\n  /^http:\\/\\/tmpfiles\\.org\\/(\\d+)\\/(.*)$/i,\n  'https://tmpfiles.org/dl/$1/$2'\n);\n\nreturn [{\n  json: {\n    ...previousData,\n    public_image_url: publicImageUrl\n  }\n}];"
+      },
+      "id": "63d3beec-f2de-495a-9009-0ad3f8b0adf3",
+      "name": "💾 Store Image URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2240,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/speech",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"tts-1-hd\",\n  \"input\": {{ JSON.stringify($json.script_audio) }},\n  \"voice\": \"nova\",\n  \"response_format\": \"mp3\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "audio"
+            }
+          }
+        }
+      },
+      "id": "d75b8206-bf12-4096-b8e1-9f9746e15cef",
+      "name": "🔊 Generate Audio (TTS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2464,
+        -432
+      ],
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const b = item.binary?.audio;\n  if (!b) return item;\n\n  item.binary.audio_mp3 = {\n    ...b,\n    fileName: 'voiceover.mp3',\n    mimeType: 'audio/mpeg'\n  };\n\n  return item;\n});"
+      },
+      "id": "54cca7c4-5ab1-4fe8-8f5d-9c705055c7d3",
+      "name": "🎵 Convert Audio",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2688,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tmpfiles.org/api/v1/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "audio_mp3"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "99e3c652-3b8a-48de-aa25-c8ca20372423",
+      "name": "☁️ Upload Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2912,
+        -432
+      ],
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "jsCode": "const audioUpload = $input.first().json;\nconst previousData = $('💾 Store Image URL').item.json;\n\n// Convert tmpfiles URL to direct download URL\nconst publicAudioUrl = audioUpload.data.url.replace(\n  /^http:\\/\\/tmpfiles\\.org\\/(\\d+)\\/(.*)$/i,\n  'https://tmpfiles.org/dl/$1/$2'\n);\n\nreturn [{\n  json: {\n    image_url: previousData.public_image_url,\n    audio_url: publicAudioUrl,\n    resolution: previousData.video_resolution || '720p',\n    aspect_ratio: previousData.video_aspect_ratio || '9:16',\n    topic: previousData.topic,\n    intention: previousData.intention,\n    brand_name: previousData.brand_name,\n    video_index: previousData.video_index,\n    script_audio: previousData.script_audio,\n    script_image: previousData.script_image,\n    caption: previousData.caption,\n    content_theme: previousData.content_theme\n  }\n}];"
+      },
+      "id": "567052ad-b2ad-4106-a9eb-1eae312f93c4",
+      "name": "📦 Prepare VEED Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3136,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "imageUrl": "={{ $json.image_url }}",
+        "audioUrl": "={{ $json.audio_url }}",
+        "resolution": "={{ $json.resolution }}",
+        "aspectRatio": "={{ $json.aspect_ratio }}",
+        "options": {}
+      },
+      "id": "9ab832c7-aa26-4eb0-be72-58c07c291a91",
+      "name": "🎬 Generate Video (VEED)",
+      "type": "n8n-nodes-veed.veed",
+      "position": [
+        3376,
+        -432
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "const veedResult = $input.first().json;\nconst prepData = $('📦 Prepare VEED Request').item.json;\n\nconst now = new Date();\nconst monthNames = ['January', 'February', 'March', 'April', 'May', 'June',\n  'July', 'August', 'September', 'October', 'November', 'December'];\nconst monthFolder = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;\nconst dateStr = now.toISOString().split('T')[0];\nconst fileName = `${dateStr}-${prepData.topic.replace(/\\s+/g, '_')}_${prepData.video_index}_${Date.now()}.mp4`;\n\n// Get video URL from VEED response - check various possible response structures\nlet videoUrl = '';\nif (veedResult.video && veedResult.video.url) {\n  videoUrl = veedResult.video.url;\n} else if (veedResult.output && veedResult.output.video_url) {\n  videoUrl = veedResult.output.video_url;\n} else if (veedResult.videoUrl) {\n  videoUrl = veedResult.videoUrl;\n} else if (veedResult.url) {\n  videoUrl = veedResult.url;\n}\n\nreturn [{\n  json: {\n    video_url: videoUrl,\n    file_name: fileName,\n    month_folder: monthFolder,\n    topic: prepData.topic,\n    intention: prepData.intention,\n    brand_name: prepData.brand_name,\n    video_index: prepData.video_index,\n    script_audio: prepData.script_audio,\n    script_image: prepData.script_image,\n    caption: prepData.caption,\n    content_theme: prepData.content_theme,\n    image_url: prepData.image_url,\n    audio_url: prepData.audio_url,\n    status: videoUrl ? 'done' : 'error',\n    veed_raw_response: veedResult\n  }\n}];"
+      },
+      "id": "f7fe4f30-1645-479f-af50-6e3f0a0b40fc",
+      "name": "📁 Prepare Upload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3600,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.video_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "0b9d2c82-486f-43df-afce-d6a0358f9962",
+      "name": "⬇️ Download Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3840,
+        -432
+      ],
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "name": "={{ $('📁 Prepare Upload').item.json.file_name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "YOUR_GOOGLE_DRIVE_FOLDER_URL"
+        },
+        "options": {}
+      },
+      "id": "ea57fe42-8064-4c1d-805d-a23d4ef4974a",
+      "name": "📤 Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        4064,
+        -432
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "jsCode": "const driveResult = $input.first().json;\nconst prepData = $('📁 Prepare Upload').item.json;\n\nconst driveFileUrl = driveResult.webViewLink || \n  `https://drive.google.com/file/d/${driveResult.id}/view`;\n\nreturn [{\n  json: {\n    topic: prepData.topic,\n    intention: prepData.intention,\n    brand_name: prepData.brand_name,\n    content_theme: prepData.content_theme,\n    script_audio: prepData.script_audio,\n    script_image: prepData.script_image,\n    caption: prepData.caption,\n    image_url: prepData.image_url,\n    audio_url: prepData.audio_url,\n    video_url: driveFileUrl,\n    status: 'done',\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "d8cd2970-af43-4615-87dd-0f5585527d0e",
+      "name": "✅ Prepare Final Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4288,
+        -432
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "YOUR_GOOGLE_SHEETS_URL"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f8090dfa-15f6-4180-9ca8-b88161aed1a9",
+      "name": "📝 Log to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        4512,
+        -432
+      ],
+      "typeVersion": 4.7
+    },
+    {
+      "parameters": {},
+      "id": "604da927-41da-4814-8eec-fe85526e8dff",
+      "name": "🔄 Continue Loop1",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        4736,
+        -432
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Generate social videos with AI avatars using VEED and Claude\n\n## How it works\n1. Configure your topic, intention, and API keys\n2. Claude generates script, image prompt, and caption\n3. OpenAI creates avatar image and voiceover audio\n4. VEED renders lip-synced talking-head video\n5. Video saved to Google Drive, metadata logged to Sheets\n\n## Setup steps\n1. Add your Anthropic and OpenAI API keys in the Configuration node\n2. Connect FAL.ai credential to VEED node\n3. Connect Google Drive and Sheets OAuth2 credentials\n4. Set your Drive folder and Sheets URLs\n5. Customize topic, brand, and audience settings",
+        "height": 544,
+        "width": 500,
+        "color": 5
+      },
+      "id": "7f75641a-6262-48a3-910c-e78412748e19",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        -736
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Configuration\nSet your topic, API keys, and video settings. Supports custom avatar descriptions and scripts.",
+        "height": 126,
+        "width": 228
+      },
+      "id": "6e9bd775-db8c-458c-bd39-891a9eadc85a",
+      "name": "Sticky Note Configuration",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        128,
+        -688
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### AI Content Generation\nClaude creates the script, image prompt, and social caption based on your topic and intention.",
+        "height": 128,
+        "width": 228
+      },
+      "id": "608f44f6-b602-4870-9c1e-48dc698e9106",
+      "name": "Sticky Note AI Content",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        -576
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Avatar & Audio\nOpenAI generates a photorealistic avatar image and converts the script to natural speech.",
+        "height": 126,
+        "width": 236
+      },
+      "id": "c9cd0afe-f7fc-4938-88a1-555082046661",
+      "name": "Sticky Note Avatar Audio",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1552,
+        -576
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Video Rendering\nVEED creates the final lip-synced talking-head video from your avatar and audio.",
+        "height": 110,
+        "width": 232
+      },
+      "id": "8e05f2cd-64dd-4ead-82a7-f8bab433d2d8",
+      "name": "Sticky Note Video Rendering",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3136,
+        -560
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Storage & Logging\nDownloads the video, uploads to Google Drive, and logs all metadata to Google Sheets.",
+        "height": 126,
+        "width": 224
+      },
+      "id": "ad4c857b-1eb5-4075-8169-af5240fb8f6c",
+      "name": "Sticky Note Storage Logging",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3600,
+        -576
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "🎵 Convert Audio": {
+      "main": [
+        [
+          {
+            "node": "☁️ Upload Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Log to Sheets": {
+      "main": [
+        [
+          {
+            "node": "🔄 Continue Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "☁️ Upload Audio": {
+      "main": [
+        [
+          {
+            "node": "📦 Prepare VEED Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "☁️ Upload Image": {
+      "main": [
+        [
+          {
+            "node": "💾 Store Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📁 Prepare Upload": {
+      "main": [
+        [
+          {
+            "node": "⬇️ Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Continue Loop1": {
+      "main": [
+        [
+          {
+            "node": "🔄 Loop Through Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Store Image URL": {
+      "main": [
+        [
+          {
+            "node": "🔊 Generate Audio (TTS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "✅ Prepare Final Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⬇️ Download Video": {
+      "main": [
+        [
+          {
+            "node": "📤 Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ Prepare Final Data": {
+      "main": [
+        [
+          {
+            "node": "📝 Log to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📸 Extract Image Data": {
+      "main": [
+        [
+          {
+            "node": "☁️ Upload Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Loop Through Videos": {
+      "main": [
+        [],
+        [
+          {
+            "node": "🧠 Build Claude Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Build Claude Prompt": {
+      "main": [
+        [
+          {
+            "node": "🤖 Claude: Generate Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Generate Video Tasks": {
+      "main": [
+        [
+          {
+            "node": "🔄 Loop Through Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 Prepare VEED Request": {
+      "main": [
+        [
+          {
+            "node": "🎬 Generate Video (VEED)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔊 Generate Audio (TTS)": {
+      "main": [
+        [
+          {
+            "node": "🎵 Convert Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎬 Generate Video (VEED)": {
+      "main": [
+        [
+          {
+            "node": "📁 Prepare Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Parse Claude Response": {
+      "main": [
+        [
+          {
+            "node": "🎨 Generate Avatar (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "📋 Generate Video Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 Generate Avatar (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "📸 Extract Image Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Claude: Generate Content": {
+      "main": [
+        [
+          {
+            "node": "📋 Parse Claude Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "514834f3-40d9-4da9-93bb-4f7162616135",
+  "meta": {
+    "instanceId": "dad5fcc32113ba8bb80eb1361380849427c50ebb586d233d41f3f7c26f32ab71"
+  },
+  "id": "2gpNN64Yn2fb4zF0OpjMo",
+  "tags": []
+}

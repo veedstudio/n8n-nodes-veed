@@ -1,4 +1,4 @@
-# AI Video Generator - Original Content (VEED + Claude)
+# Generate social videos with AI avatars using VEED and Claude
 
 ## Overview
 
@@ -199,7 +199,7 @@ When generating multiple videos, the workflow automatically varies the approach:
 ## Setup Checklist
 
 ### Step 1: Import Workflow
-- [ ] Import `AI_Video_Generator_Template.json` into n8n
+- [ ] Import `generate-social-videos-with-ai-avatars-using-veed-and-claude.json` into n8n
 
 ### Step 2: Configure API Keys
 - [ ] Open the **⚙️ Workflow Configuration** node

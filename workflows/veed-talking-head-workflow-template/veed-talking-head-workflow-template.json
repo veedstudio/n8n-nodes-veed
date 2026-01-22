@@ -850,7 +850,7 @@
       "parameters": {
         "batchSize": 1,
         "options": {
-          "reset": "={{ $node['Loop Over Rows'].context['noItemsLeft'] }}"
+          "reset": "={{ $('Loop Over Platforms').context['done'] }}"
         }
       },
       "id": "loop-over-platforms-id",
