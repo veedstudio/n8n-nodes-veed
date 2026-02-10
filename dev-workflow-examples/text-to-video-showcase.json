@@ -3,7 +3,7 @@
 	"nodes": [
 		{
 			"parameters": {
-				"content": "=## 🎬 Complete Text-to-Video Pipeline\n\n**What you need:**\n• OpenAI API key ($5 free trial covers ~10-50 videos)\n• Twitter API credentials (free tier)\n• Fal.ai API key (pay-per-use)\n\n**Flow:**\nPrompt → AI Script → AI Image → TTS Audio → Veed Video → Twitter Post\n\n**Cost per video:**\n• OpenAI GPT-4: ~$0.01\n• OpenAI DALL-E 3: ~$0.04\n• OpenAI TTS: ~$0.015\n• Fal.ai Fabric: ~$0.50-1.50\n**Total: ~$0.60-2/video**",
+				"content": "=## 🎬 Complete Text-to-Video Pipeline\n\n**What you need:**\n• OpenAI API key ($5 free trial covers ~10-50 videos)\n• Twitter API credentials (free tier)\n• Fal.ai API key (pay-per-use)\n\n**Flow:**\nPrompt → AI Script → AI Image → TTS Audio → Veed Video → Twitter Post\n\n**Cost per video:**\n• OpenAI GPT-5-mini: ~$0.01\n• OpenAI DALL-E 3: ~$0.04\n• OpenAI TTS: ~$0.015\n• Fal.ai Fabric: ~$0.50-1.50\n**Total: ~$0.60-2/video**",
 				"height": 400,
 				"width": 500
 			},
@@ -64,7 +64,7 @@
 				"nodeCredentialType": "openAiApi",
 				"sendBody": true,
 				"specifyBody": "json",
-				"jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert advertising copywriter. Respond ONLY with valid JSON. No markdown, no code blocks, just raw JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a short ad script and character description for: {{ $json.adPrompt }}\\n\\nRespond with this exact JSON format:\\n{\\n  \\\"script\\\": \\\"15-20 second voice-over (max 30 words)\\\",\\n  \\\"characterDescription\\\": \\\"detailed visual description for DALL-E\\\",\\n  \\\"productFocus\\\": \\\"main product\\\"\\n}\"\n    }\n  ],\n  \"temperature\": 0.8,\n  \"max_tokens\": 500\n}",
+				"jsonBody": "={\n  \"model\": \"gpt-5-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert advertising copywriter. Respond ONLY with valid JSON. No markdown, no code blocks, just raw JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a short ad script and character description for: {{ $json.adPrompt }}\\n\\nRespond with this exact JSON format:\\n{\\n  \\\"script\\\": \\\"15-20 second voice-over (max 30 words)\\\",\\n  \\\"characterDescription\\\": \\\"detailed visual description for DALL-E\\\",\\n  \\\"productFocus\\\": \\\"main product\\\"\\n}\"\n    }\n  ],\n  \"temperature\": 0.8,\n  \"max_tokens\": 500\n}",
 				"options": {}
 			},
 			"id": "openai-script",
@@ -72,7 +72,7 @@
 			"type": "n8n-nodes-base.httpRequest",
 			"typeVersion": 4.2,
 			"position": [900, 400],
-			"notes": "Generates ad script + character description using GPT-4o-mini"
+			"notes": "Generates ad script + character description using GPT-5-mini"
 		},
 		{
 			"parameters": {
