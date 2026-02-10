@@ -111,7 +111,7 @@ Full automated pipeline from text prompt to social media post.
 ```
 Text Prompt ("animated bear advertising sunglasses")
     ↓
-🤖 OpenAI GPT-4o-mini → Generates ad script + character description
+🤖 OpenAI GPT-5-mini → Generates ad script + character description
     ↓
 🎨 OpenAI DALL-E 3 → Creates character image
     ↓
@@ -126,7 +126,7 @@ Text Prompt ("animated bear advertising sunglasses")
 
 **Services used:**
 
-- 💰 **OpenAI GPT-4o-mini** ($5 free trial, ~$0.01/video) - Script generation
+- 💰 **OpenAI GPT-5-mini** ($5 free trial, ~$0.01/video) - Script generation
 - 💰 **OpenAI DALL-E 3** ($5 free trial, ~$0.04/image) - Image generation
 - ✅ **StreamElements TTS** (FREE, no API key needed) - Text-to-speech
 - 💰 **fal.ai** (Pay-per-use, ~$0.08-0.20/second) - Video generation
