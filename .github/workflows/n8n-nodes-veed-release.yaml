@@ -16,10 +16,10 @@ jobs:
   release:
     name: Release to npm
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: write
     steps:
-      - uses: veedstudio/actions/checkout@master
-        with:
-          credentials_token: ${{ secrets.VEED_DEVOPS_APP_CREDENTIALS_TOKEN }}
+      - uses: actions/checkout@v6
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
