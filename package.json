@@ -71,5 +71,10 @@
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
+	},
+	"pnpm": {
+		"overrides": {
+			"basic-ftp": ">=5.2.0"
+		}
 	}
 }
