@@ -57,24 +57,19 @@
 	},
 	"devDependencies": {
 		"@n8n/node-cli": "^0.17.0",
-		"@types/node": "^24.10.4",
-		"@vitest/coverage-v8": "^4.0.16",
-		"@vitest/ui": "^4.0.16",
+		"@types/node": "^24.12.0",
+		"@vitest/coverage-v8": "^4.1.0",
+		"@vitest/ui": "^4.1.0",
 		"cross-env": "^10.1.0",
 		"eslint": "9.32.0",
 		"prettier": "3.6.2",
-		"release-it": "^19.2.2",
-		"rimraf": "^6.1.2",
+		"release-it": "^19.2.4",
+		"rimraf": "^6.1.3",
 		"tsx": "^4.21.0",
 		"typescript": "5.9.2",
-		"vitest": "^4.0.16"
+		"vitest": "^4.1.0"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
-	},
-	"pnpm": {
-		"overrides": {
-			"basic-ftp": ">=5.2.0"
-		}
 	}
 }
