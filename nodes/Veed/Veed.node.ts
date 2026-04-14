@@ -97,16 +97,23 @@ export class Veed implements INodeType {
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
 
-		// Route to appropriate operation handler
-		if (resource === 'fabric') {
-			if (operation === 'generateVideo') {
-				return await fabric.generateVideo.call(this);
+		try {
+			// Route to appropriate operation handler
+			if (resource === 'fabric') {
+				if (operation === 'generateVideo') {
+					return await fabric.generateVideo.call(this);
+				}
 			}
-		}
 
-		throw new NodeOperationError(
-			this.getNode(),
-			`The operation "${operation}" is not supported for resource "${resource}"`,
-		);
+			throw new NodeOperationError(
+				this.getNode(),
+				`The operation "${operation}" is not supported for resource "${resource}"`,
+			);
+		} catch (error) {
+			if (this.continueOnFail()) {
+				return [[{ json: { error: (error as Error).message } }]];
+			}
+			throw error;
+		}
 	}
 }
