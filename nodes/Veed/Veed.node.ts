@@ -111,7 +111,7 @@ export class Veed implements INodeType {
 			);
 		} catch (error) {
 			if (this.continueOnFail()) {
-				return [[{ json: { error: (error as Error).message } }]];
+				return [[{ json: { error: (error as Error).message }, pairedItem: { item: 0 } }]];
 			}
 			throw error;
 		}
